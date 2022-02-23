@@ -124,10 +124,8 @@
     
   </head>
   <body>
-	<div class="container">
-		<div class="jumbotron text-center" style="margin-bottom:0">
-		  <h1>生物常用导航网站</h1>
-        </div>
+    <div class="jumbotron text-center" style="margin-bottom:0">
+        <h1>生物常用导航网站</h1>
         <!--搜索组件-->
         <form class="form-inline " role="form" action="https://www.baidu.com/s" target=_blank id= "searchForm" >
             <div class="row text-center">
@@ -146,6 +144,9 @@
                 </div>
             </div>
         </form>
+    </div>
+	<div class="container">
+        
         <!--翻译组件-->
         <div style="position: relative;top:10px;left: 10px;">
             <div class="row ">
@@ -198,127 +199,134 @@
 		<div style="position: relative;top:30px;left: 10px;"id="myTabContent" class="tab-content">
 		    <div class="tab-pane fade in active" id="databank">
 		        <p>科研数据库。</p>
-				<a href="https://www.cnki.net/" target = "_blank" class="list-group-item">
-				    <h3>中国知网</h3><small>中国知网知识发现网络平台—面向海内外读者提供中国学术文献、外文文献、学位论文、报纸、会议、年鉴、工具书等各类资源统一检索、统一导航、在线阅读和下载服务。</small>
-				</a>
-				<a href="https://www.ncbi.nlm.nih.gov/" target = "_blank" class="list-group-item">
-                    <h3>NCBI数据库</h3>
-                </a>
-                <a href="https://www.rcsb.org/" target = "_blank" class="list-group-item">
-				    <h3>PDB数据库</h3><small>蛋白质数据库protein data bank，可查看蛋白氨基酸序列，3D结构等</small>
-				</a>
-                <a href="http://dpaper.las.ac.cn/homeNew" target = "_blank" class="list-group-item">
-				    <h3>学位论文知识发现系统</h3><small>可以检索中科院系统内历年的硕博论文（下载全文需要连接内网）</small>
-				</a>
-                <a href="https://sci-hub.se/" target = "_blank" class="list-group-item">
-				    <h3>SCI-HUB</h3><small>懂的都懂</small>
-				</a>
-                <a href="https://www.ablesci.com/" target = "_blank" class="list-group-item">
-				    <h3>科研通文献互助</h3><small>科研通是完全免费的文献互助平台，具备全网最快的应助速度，最高的求助完成率。</small>
-				</a>
-                <a href="https://libgen.unblockit.cam/" target = "_blank" class="list-group-item">
-				    <h3>Library Genesis</h3><small>电子书下载</small>
-				</a>
-                <a href="http://en.bookfi.net/" target = "_blank" class="list-group-item">
-				    <h3>Electronic library</h3><small>电子书下载</small>
-				</a>
-                <a href="http://www.coremine.com/medical/#search" target = "_blank" class="list-group-item">
-				    <h3>医学本体信息检索平台</h3><small>检索资源（要登录）</small>
-				</a>
-                <a href="https://openwetware.org/wiki/Main_Page" target = "_blank" class="list-group-item">
-				    <h3>OpenWetWare</h3><small>资源信息共享</small>
-				</a>
-                <a href="https://www.kegg.jp/" target = "_blank" class="list-group-item">
-				    <h3>各类信号通路</h3><small></small>
-				</a>
-                <a href="http://flybase.org/" target = "_blank" class="list-group-item">
-				    <h3>果蝇数据库</h3><small></small>
-				</a>
-                <a href="https://silkdb.bioinfotoolkits.net/main/species-info/-1" target = "_blank" class="list-group-item">
-				    <h3>家蚕数据库</h3><small></small>
-				</a>
-                <a href="https://pathways.embl.de/" target = "_blank" class="list-group-item">
-				    <h3>代谢通路</h3><small></small>
-				</a>
-                <a href="https://services.healthtech.dtu.dk/" target = "_blank" class="list-group-item">
-				    <h3>各类生信工具数据集</h3><small></small>
-				</a>
-                <a href="https://international.neb.com/products/r3535-bsai-hf#Tools%20&%20Resources" target = "_blank" class="list-group-item">
-				    <h3>NEB酶切位点信息</h3><small></small>
-				</a>
-                <a href="https://www.ebi.ac.uk/interpro/result/InterProScan/#table" target = "_blank" class="list-group-item">
-				    <h3>蛋白分类</h3><small></small>
-				</a>
-                <a href="https://www.uniprot.org/" target = "_blank" class="list-group-item">
-				    <h3>UniProt蛋白数据库</h3><small></small>
-				</a>
-                <a href="https://reprint-apms.org/?q=tutorial" target = "_blank" class="list-group-item">
-				    <h3>亲和纯化的污染物库</h3><small></small>
-				</a>
-                <a href="https://talk.ictvonline.org/taxonomy/" target = "_blank" class="list-group-item">
-				    <h3>国际病毒分类委员会</h3><small></small>
-				</a>
-                <a href="" target = "_blank" class="list-group-item">
-				    <h3></h3><small></small>
-				</a>
-                
-				
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="https://www.cnki.net/" target = "_blank" class="list-group-item">
+                            <h3>中国知网</h3><small>中国知网知识发现网络平台—面向海内外读者提供中国学术文献、外文文献、学位论文、报纸、会议、年鉴、工具书等各类资源统一检索、统一导航、在线阅读和下载服务。</small>
+                        </a>
+                        <a href="https://www.ncbi.nlm.nih.gov/" target = "_blank" class="list-group-item">
+                            <h3>NCBI数据库</h3>
+                        </a>
+                        <a href="https://www.rcsb.org/" target = "_blank" class="list-group-item">
+                            <h3>PDB数据库</h3><small>蛋白质数据库protein data bank，可查看蛋白氨基酸序列，3D结构等</small>
+                        </a>
+                        <a href="http://dpaper.las.ac.cn/homeNew" target = "_blank" class="list-group-item">
+                            <h3>学位论文知识发现系统</h3><small>可以检索中科院系统内历年的硕博论文（下载全文需要连接内网）</small>
+                        </a>
+                        <a href="https://sci-hub.se/" target = "_blank" class="list-group-item">
+                            <h3>SCI-HUB</h3><small>懂的都懂</small>
+                        </a>
+                        <a href="https://www.ablesci.com/" target = "_blank" class="list-group-item">
+                            <h3>科研通文献互助</h3><small>科研通是完全免费的文献互助平台，具备全网最快的应助速度，最高的求助完成率。</small>
+                        </a>
+                        <a href="https://libgen.unblockit.cam/" target = "_blank" class="list-group-item">
+                            <h3>Library Genesis</h3><small>电子书下载</small>
+                        </a>
+                        <a href="http://en.bookfi.net/" target = "_blank" class="list-group-item">
+                            <h3>Electronic library</h3><small>电子书下载</small>
+                        </a>
+                        <a href="http://www.coremine.com/medical/#search" target = "_blank" class="list-group-item">
+                            <h3>医学本体信息检索平台</h3><small>检索资源（要登录）</small>
+                        </a>
+                        <a href="https://openwetware.org/wiki/Main_Page" target = "_blank" class="list-group-item">
+                            <h3>OpenWetWare</h3><small>资源信息共享</small>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="https://www.kegg.jp/" target = "_blank" class="list-group-item">
+                            <h3>各类信号通路</h3><small></small>
+                        </a>
+                        <a href="http://flybase.org/" target = "_blank" class="list-group-item">
+                            <h3>果蝇数据库</h3><small></small>
+                        </a>
+                        <a href="https://silkdb.bioinfotoolkits.net/main/species-info/-1" target = "_blank" class="list-group-item">
+                            <h3>家蚕数据库</h3><small></small>
+                        </a>
+                        <a href="https://pathways.embl.de/" target = "_blank" class="list-group-item">
+                            <h3>代谢通路</h3><small></small>
+                        </a>
+                        <a href="https://services.healthtech.dtu.dk/" target = "_blank" class="list-group-item">
+                            <h3>各类生信工具数据集</h3><small></small>
+                        </a>
+                        <a href="https://international.neb.com/products/r3535-bsai-hf#Tools%20&%20Resources" target = "_blank" class="list-group-item">
+                            <h3>NEB酶切位点信息</h3><small></small>
+                        </a>
+                        <a href="https://www.ebi.ac.uk/interpro/result/InterProScan/#table" target = "_blank" class="list-group-item">
+                            <h3>蛋白分类</h3><small></small>
+                        </a>
+                        <a href="https://www.uniprot.org/" target = "_blank" class="list-group-item">
+                            <h3>UniProt蛋白数据库</h3><small></small>
+                        </a>
+                        <a href="https://reprint-apms.org/?q=tutorial" target = "_blank" class="list-group-item">
+                            <h3>亲和纯化的污染物库</h3><small></small>
+                        </a>
+                        <a href="https://talk.ictvonline.org/taxonomy/" target = "_blank" class="list-group-item">
+                            <h3>国际病毒分类委员会</h3><small></small>
+                        </a>
+                    </div>
+                </div>
+			
 		    </div>
 		    <div class="tab-pane fade" id="tools">
 		        <p>生物工具。</p>
-                <a href="https://nebiocalculator.neb.com/#!/ligation" target = "_blank" class="list-group-item">
-				    <h3>NE生物计算器</h3><small>New England biolabs公司的一款生物计算器，可以计算克隆插入片段和载体的连接比例，核酸和蛋白质的质量与摩尔数换算等。</small>
-				</a>
-                <a href="https://crm.vazyme.com/cetool/simple.html" target = "_blank" class="list-group-item">
-				    <h3>CE Design引物设计软件</h3><small>用于设计In-Fusion同源重组克隆的引物，自动生成同源臂序列</small>
-				</a>
-                <a href="http://lucky-boy.ysepan.com/" target = "_blank" class="list-group-item">
-				    <h3>生信软件-视频教程</h3><small>一个分享生信软件和视频教程的网站。</small>
-				</a>
-                <a href="https://www.home-for-researchers.com/static/index.html#/" target = "_blank" class="list-group-item">
-				    <h3>SCI写作助手-科研者之家</h3><small>包含了许多科研写作的工具。（可白嫖）</small>
-				</a>
-                <a href="https://www.citexs.com/Writing?lt=i" target = "_blank" class="list-group-item">
-				    <h3>赛特新思写作助手</h3><small>结构化写作，文献例句，在线翻译，英文智能降重，投稿与回信，写作技巧</small>
-				</a>
-                <a href="https://www.expasy.org/" target = "_blank" class="list-group-item">
-				    <h3>各类生信分析工具集</h3><small></small>
-				</a>
-                <a href="https://woodward.library.ubc.ca/research-help/journal-abbreviations/#C" target = "_blank" class="list-group-item">
-				    <h3>期刊缩写</h3><small>输入期刊的缩写，查询对应的期刊全名</small>
-				</a>
-                <a href="http://smart.embl-heidelberg.de/" target = "_blank" class="list-group-item">
-				    <h3>SMART序列分析</h3><small>SMART（一种简单的模块化架构研究工具）允许识别和注释遗传移动域以及分析域架构</small>
-				</a>
-                <a href="https://swissmodel.expasy.org/interactive" target = "_blank" class="list-group-item">
-				    <h3>蛋白高级结构预测建模</h3><small></small>
-				</a>
-                <a href="http://www.detaibio.com/sms2/genbank_feat.html" target = "_blank" class="list-group-item">
-				    <h3>序列操作工具箱</h3><small></small>
-				</a>
-                <a href="https://toolkit.tuebingen.mpg.de/tools/hhpred" target = "_blank" class="list-group-item">
-				    <h3>序列分析</h3><small></small>
-				</a>
-                <a href="http://www.iedb.org/" target = "_blank" class="list-group-item">
-				    <h3>抗原表位预测</h3><small></small>
-				</a>
-                <a href="https://itol.embl.de/tree/" target = "_blank" class="list-group-item">
-				    <h3>在线进化树制作</h3><small></small>
-				</a>
-                <a href="https://flourish.studio/" target = "_blank" class="list-group-item">
-				    <h3>数据可视化</h3><small></small>
-				</a>
-                <a href="http://bioinf.cs.ucl.ac.uk/psipred/" target = "_blank" class="list-group-item">
-				    <h3>蛋白结构预测</h3><small></small>
-				</a>
-                <a href="https://www.medsci.cn/sci/journal_index" target = "_blank" class="list-group-item">
-				    <h3>期刊信息查询</h3><small>MedSci最新SCI期刊智能查询及投稿分析系统（2019-2020年）
-                        整理了最新被SCIE和SSCI收录的所有期刊杂志，包括SCI期刊ISSN号，期刊官方投稿网址，研究方向，SCI期刊分区，中国作者发表的文章，投稿经验等。</small>
-				</a>
-                <a href="https://www.issn.org/services/online-services/access-to-the-ltwa/" target = "_blank" class="list-group-item">
-				    <h3>缩写数据库</h3><small>题名词缩写表（LTWA）可在线上查询，该表每年予以更新</small>
-				</a>
-
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="https://nebiocalculator.neb.com/#!/ligation" target = "_blank" class="list-group-item">
+                            <h3>NE生物计算器</h3><small>New England biolabs公司的一款生物计算器，可以计算克隆插入片段和载体的连接比例，核酸和蛋白质的质量与摩尔数换算等。</small>
+                        </a>
+                        <a href="https://crm.vazyme.com/cetool/simple.html" target = "_blank" class="list-group-item">
+                            <h3>CE Design引物设计软件</h3><small>用于设计In-Fusion同源重组克隆的引物，自动生成同源臂序列</small>
+                        </a>
+                        <a href="http://lucky-boy.ysepan.com/" target = "_blank" class="list-group-item">
+                            <h3>生信软件-视频教程</h3><small>一个分享生信软件和视频教程的网站。</small>
+                        </a>
+                        <a href="https://www.home-for-researchers.com/static/index.html#/" target = "_blank" class="list-group-item">
+                            <h3>SCI写作助手-科研者之家</h3><small>包含了许多科研写作的工具。（可白嫖）</small>
+                        </a>
+                        <a href="https://www.citexs.com/Writing?lt=i" target = "_blank" class="list-group-item">
+                            <h3>赛特新思写作助手</h3><small>结构化写作，文献例句，在线翻译，英文智能降重，投稿与回信，写作技巧</small>
+                        </a>
+                        <a href="https://www.expasy.org/" target = "_blank" class="list-group-item">
+                            <h3>各类生信分析工具集</h3><small></small>
+                        </a>
+                        <a href="https://woodward.library.ubc.ca/research-help/journal-abbreviations/#C" target = "_blank" class="list-group-item">
+                            <h3>期刊缩写</h3><small>输入期刊的缩写，查询对应的期刊全名</small>
+                        </a>
+                        <a href="http://smart.embl-heidelberg.de/" target = "_blank" class="list-group-item">
+                            <h3>SMART序列分析</h3><small>SMART（一种简单的模块化架构研究工具）允许识别和注释遗传移动域以及分析域架构</small>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                         <a href="https://swissmodel.expasy.org/interactive" target = "_blank" class="list-group-item">
+                            <h3>蛋白高级结构预测建模</h3><small></small>
+                        </a>
+                        <a href="http://www.detaibio.com/sms2/genbank_feat.html" target = "_blank" class="list-group-item">
+                            <h3>序列操作工具箱</h3><small></small>
+                        </a>
+                        <a href="https://toolkit.tuebingen.mpg.de/tools/hhpred" target = "_blank" class="list-group-item">
+                            <h3>序列分析</h3><small></small>
+                        </a>
+                        <a href="http://www.iedb.org/" target = "_blank" class="list-group-item">
+                            <h3>抗原表位预测</h3><small></small>
+                        </a>
+                        <a href="https://itol.embl.de/tree/" target = "_blank" class="list-group-item">
+                            <h3>在线进化树制作</h3><small></small>
+                        </a>
+                        <a href="https://flourish.studio/" target = "_blank" class="list-group-item">
+                            <h3>数据可视化</h3><small></small>
+                        </a>
+                        <a href="http://bioinf.cs.ucl.ac.uk/psipred/" target = "_blank" class="list-group-item">
+                            <h3>蛋白结构预测</h3><small></small>
+                        </a>
+                        <a href="https://www.medsci.cn/sci/journal_index" target = "_blank" class="list-group-item">
+                            <h3>期刊信息查询</h3><small>MedSci最新SCI期刊智能查询及投稿分析系统（2019-2020年）
+                                整理了最新被SCIE和SSCI收录的所有期刊杂志，包括SCI期刊ISSN号，期刊官方投稿网址，研究方向，SCI期刊分区，中国作者发表的文章，投稿经验等。</small>
+                        </a>
+                        <a href="https://www.issn.org/services/online-services/access-to-the-ltwa/" target = "_blank" class="list-group-item">
+                            <h3>缩写数据库</h3><small>题名词缩写表（LTWA）可在线上查询，该表每年予以更新</small>
+                        </a>
+                    </div>
+                </div>
                 <a href="" target = "_blank" class="list-group-item">
 				    <h3></h3><small></small>
 				</a>
