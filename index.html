@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <title>Hq's webside</title>
-    <link rel="shortcut icon" href="https://images.cnblogs.com/cnblogs_com/cc11001100/898804/o_c.png" type="image/x-icon">
+    <link rel="shortcut icon" href="img/hq.png" type="image/x-icon">
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
@@ -124,79 +124,87 @@
     
   </head>
   <body>
-    <div class="jumbotron text-center" style="margin-bottom:0">
-        <h1>生物常用导航网站</h1>
-        <!--搜索组件-->
-        <form class="form-inline " role="form" action="https://www.baidu.com/s" target=_blank id= "searchForm" >
-            <div class="row text-center">
-                <div class="form-group  ">
-                    <select class="form-control input-lg" id= "search" >
-                        <option value="baidu">百度</option>
-                        <option value="goole">Goole</option>
-                        <option value="zhihu">知乎</option>
-                    </select>
+    <div class="container-fluid">  
+        <div class="jumbotron text-center" style="margin-bottom:0">
+            <h1>生物常用导航网站</h1>
+            <!--搜索组件-->
+            
+            <form  role="form"  action="https://www.baidu.com/s" target=_blank id= "searchForm" >
+                <div  class="row row-no-gutters text-center">
+                    <div  class="form-group  col-md-1 col-md-offset-3 col-xs-4 ">
+                        <select class="form-control input-lg " id= "search" >
+                            <option value="baidu">百度</option>
+                            <option value="goole">Goole</option>
+                            <option value="zhihu">知乎</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4  col-xs-6">
+                        <input class="form-control  input-lg " style="width: 100%;"type="text" placeholder="请输入您要搜索的内容" name="wd" id="keyword"/> 
+                    </div>
+                    <div class="form-group col-md-1  col-xs-2">
+                        <input class="btn btn-primary form-control input-lg" type="submit"  value="搜索" />
+                    </div>
                 </div>
-                <div class="form-group ">
-                    <input class="form-control  input-lg" style="width: 550px;"type="text" placeholder="请输入您要搜索的内容" name="wd" id="keyword"/> 
-                </div>
-                <div class="form-group ">
-                    <input class="btn btn-primary form-control input-lg" type="submit"  value="搜索" />
-                </div>
-            </div>
-        </form>
-    </div>
+            </form>
+            
+        </div>
+    </div>  
 	<div class="container">
         
         <!--翻译组件-->
         <div style="position: relative;top:10px;left: 10px;">
             <div class="row ">
-                <span class=" col-md-2">
+                <span class=" col-md-2 col-xs-4">
                     <label class="sr-only" for="fromSelect"></label>
                     <select class="form-control" id="fromSelect" >
                         <option name="from" value="zh">中文</option>
                         <option name="from" value="en">英文</option>
                     </select >
                 </span>
-                <button  type="button" value="互换" id="changeLauBtn" class="btn btn-default col-md-1">
+                <button  type="button" value="互换" id="changeLauBtn" class="btn btn-default col-md-1 col-xs-2">
                     <span class="glyphicon glyphicon-resize-horizontal" aria-hidden="true"></span>
                 </button>
-                <span class=" col-md-2">
+                <span class=" col-md-2 col-xs-4">
                     <label class="sr-only" for="toSelect">请选择目标语言</label>
                     <select class="form-control col-md-1" id="toSelect" >
                         <option name="to" value="en">英文</option>
                         <option name="to" value="zh">中文</option>
                     </select>
                 </span>
-                <span class="col-md-4">
-                        <button id="translateBtn" class="btn btn-primary " type="button"  > 翻译  </button>                                  
-                        <button class="btn btn-danger " type="reset" form="translateForm" > 清空</button>
+                <span class="col-md-4 col-xs-8">
+                    <button id="translateBtn" class="btn btn-primary " type="button"  > 翻译  </button>                                  
+                    <button class="btn btn-danger " type="reset" form="translateForm" > 清空</button>
                 </span>
             </div>
             <form style="position: relative;top:10px;" id="translateForm" class="form-inline">
-                <textarea class="form-control" rows="3" style="width: 30%;" placeholder="请输入需要翻译的单词" id="queryBox"></textarea>
-
-                <textarea class="form-control" rows="3" style="width: 30%;" type="text"  id="dstBox" readonly></textarea><br>
-
+                <div class="row">
+                    <div class="col-md-4 col-xs-6">
+                        <textarea class="form-control" rows="3" style="width: 100%;" placeholder="请输入需要翻译的单词" id="queryBox"></textarea>
+                    </div>
+                    <div class="col-md-4 col-xs-6">
+                        <textarea class="form-control" rows="3" style="width: 100%;" type="text"  id="dstBox" readonly></textarea>
+                    </div>
+                </div>
             </form>
         </div>
 		
 
 		<!--标签页-->
-		<div style="position: relative;top:20px;left: 10px;">
-            <ul  id="myTab" class="nav nav-tabs">
+		<div style="position: relative;top:30px;left: 10px;">
+            <ul  id="myTab" class="nav nav-pills">
                 <li class="active">
-                    <a href="#databank" data-toggle="tab">科研数据库</a>
+                    <a href="#databank" data-toggle="tab"><h4>科研数据库</h4></a>
                 </li>
-                <li><a href="#tools" data-toggle="tab">生物工具</a></li>
-                <li><a href="#company" data-toggle="tab">试剂公司</a></li>
-                <li><a href="#student" data-toggle="tab">学生教务</a></li>
-                <li><a href="#ent" data-toggle="tab">休闲娱乐</a></li>
-                <li><a href="#code" data-toggle="tab">编程学习</a></li>
+                <li><a href="#tools" data-toggle="tab"><h4>生物工具</h4></a></li>
+                <li><a href="#company" data-toggle="tab"><h4>试剂公司</h4></a></li>
+                <li><a href="#student" data-toggle="tab"><h4>学生教务</h4></a></li>
+                <li><a href="#ent" data-toggle="tab"><h4>休闲娱乐</h4></a></li>
+                <li><a href="#code" data-toggle="tab"><h4>编程学习</h4></a></li>
                 <!--在这里新增标签页-->
             </ul>
         </div>
         <!--超链接主体部分-->
-		<div style="position: relative;top:30px;left: 10px;"id="myTabContent" class="tab-content">
+		<div style="position: relative;top:50px;left: 10px;"id="myTabContent" class="tab-content">
 		    <div class="tab-pane fade in active" id="databank">
 		        <p>科研数据库。</p>
                 <div class="row">
@@ -344,7 +352,8 @@
 			    </p>
 			</div>
             <div class="tab-pane fade" id="code">
-			    <p>编程学习
+			    <p>编程学习https://www.w3school.com.cn/
+                    <br>https://v3.bootcss.com/css/#grid
 			    </p>
 			</div>
 		</div>
