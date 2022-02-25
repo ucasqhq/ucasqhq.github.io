@@ -24,7 +24,11 @@
 	integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" 
 	crossorigin="anonymous">
 	</script>
-    
+    <style>
+        #searchDiv {
+            background-image: url("./newbg4.jpeg");
+        }
+    </style>
 	<script>
 	
 	$(document).ready(function(){
@@ -50,6 +54,18 @@
 				formElt.action="https://www.zhihu.com/search"
 				keyWordElt.name="q"
 			}
+            if(searchListElt.value == "bing"){
+                formElt.action="https://cn.bing.com/search"
+				keyWordElt.name="q"
+            }
+            if(searchListElt.value == "sogou"){
+                formElt.action="https://www.sogou.com/web"
+				keyWordElt.name="query"
+            }
+            if(searchListElt.value == "bilibili"){
+                formElt.action="https://search.bilibili.com/all"
+				keyWordElt.name="keyword"
+            }
 		}
 		$("#fromSelect").change(function(){
 			fromLang =fromSelect.options[fromSelect.selectedIndex].value
@@ -125,7 +141,7 @@
   </head>
   <body>
     <div class="container-fluid" >  
-        <div class="jumbotron text-center">
+        <div id="searchDiv" class="jumbotron text-center" >
             <h1>生物常用导航网站</h1>
             <!--搜索组件-->
             
@@ -134,8 +150,11 @@
                     <div  class="form-group  col-md-1 col-md-offset-3 col-xs-4 ">
                         <select class="form-control input-lg " id= "search" >
                             <option value="baidu">百度</option>
+                            <option value="bing">必应</option>
+                            <option value="sogou">搜狗</option>
                             <option value="goole">Goole</option>
                             <option value="zhihu">知乎</option>
+                            <option value="bilibili">B站</option>
                         </select>
                     </div>
                     <div class="form-group col-md-4  col-xs-6">
@@ -467,10 +486,12 @@
 		
 	</div>
     <!--footer-->
-    
-    
-   
-    
+    <div class="container-fluid">
+        <div style="background-color: darkturquoise;width: 100%;position: relative;top: 80px;">
+        <p>test</p>
+        </div>
+
+    </div>
     
   </body>
 
