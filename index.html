@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <title>Hq's webside</title>
+    <title>生物常用网址导航QHQ</title>
     <link rel="shortcut icon" href="img/hq.png" type="image/x-icon">
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
@@ -142,7 +142,7 @@
   <body>
     <div class="container-fluid" >  
         <div id="searchDiv" class="jumbotron text-center" >
-            <h1>生物常用导航网站</h1>
+            <h1 style="color: rgb(77, 63, 63);">生物常用导航网站</h1>
             <!--搜索组件-->
             
             <form  role="form"  action="https://www.baidu.com/s" target=_blank id= "searchForm" >
@@ -418,6 +418,9 @@
                         <a href="http://sep.ucas.ac.cn/" target = "_blank" class="list-group-item">
                             <h3>SEP教务管理系统</h3><small></small>
                         </a>
+                        <a href="https://mail.163.com/" target = "_blank" class="list-group-item">
+                            <h3>163网易邮箱</h3><small></small>
+                        </a>
                     </div>
                     <div class="col-md-4">
                         <a href="https://admission.ucas.ac.cn/" target = "_blank" class="list-group-item">
@@ -489,12 +492,13 @@
     <!--footer-->
     <div class="container-fluid" style="padding-top: 40px;position: relative;top: 100px;background-color: deepskyblue;">
         <div class="row clearfix">
+            
             <div class="col-md-12 column">
                 <div class="jumbotron" style="background-color: deepskyblue;">
                     <div class="container" >
                         <center style="color: white;">
                             <p >Copyright© 2022 All Rights Reserved. </p>
-                            <p>中国科学院大学-秦浩卿</p>
+                            <p>中国科学院大学-天南星&nbsp;<a style="color: white;" data-toggle="modal" data-target="#aboutus">关于我们</a></p>
                             本网站资源来自互联网，经作者整理，仅供个人学习使用。qq：921481033
                         </center>
     
@@ -502,6 +506,36 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="aboutus" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="myModalLabel">作者独白</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        本人生物学博士在读，在科研之路摸爬滚打几年，也走过一些弯路。有时候会遇到一些“相见恨晚”的网站。
+                    </p>
+                    <p>
+                        本着乐于分享的精神，我从师兄、同学、互联网等各处收集了一些生物学领域能使用的网址，利用刚学的前端技术制作了本网址，希望给刚入行的新人带来一点点的帮助。
+                    </p>
+                    <p>
+                        当然，除了学习上的网址，我也添加了一些平时上网冲浪的网址。争取学习，生活冲浪更加便捷。
+                    </p>
+                    <p>
+                        如果你也有好的网址推荐，也欢迎联系我。可以访问我的<a href="https://github.com/ucasqhq/nav" target="_blank">GitHub页面</a>提交，也可以通过邮件（921481033@qq.com）联系。
+                    </p> 
+                    <p>要是有前端大佬愿意帮我美化页面，那就太好了！</p>
+                        
+                    
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+              </div>
+            </div>
+          </div>
     </div>
   
   </body>
