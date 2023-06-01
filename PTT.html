@@ -1,0 +1,238 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>蛋白截短实验示意图辅助工具</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="./bootstrap5.0.min.css" >
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+	<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+	<script src="./jquery.min.js" > </script>
+	<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+	<script src="./bootstrap.min.js" ></script>
+    <script>
+        $(document).ready(function(){
+            $("#calculate").click(function () {
+                //获取值
+                var f_width = $("#f_width").val();
+                var f_pos = $('#f_pos').val();
+                var f_startAA = $('#f_startAA').val();
+                var f_endAA = $('#f_endAA').val();
+                var step = f_width/(f_endAA-f_startAA + 1);         
+                //计算步骤
+                var t1_pos = Number(f_pos) + Number(($('#t1_startAA').val()-f_startAA)*step);
+                var t2_pos = Number(f_pos) + Number(($('#t2_startAA').val()-f_startAA)*step);
+                var t3_pos = Number(f_pos) + Number(($('#t3_startAA').val()-f_startAA)*step);
+                var t4_pos = Number(f_pos) + Number(($('#t4_startAA').val()-f_startAA)*step);
+                var t5_pos = Number(f_pos) + Number(($('#t5_startAA').val()-f_startAA)*step);
+                var t6_pos = Number(f_pos) + Number(($('#t6_startAA').val()-f_startAA)*step);
+
+                var t1_width = ($('#t1_endAA').val()-$('#t1_startAA').val()+1)*step;
+                var t2_width = ($('#t2_endAA').val()-$('#t2_startAA').val()+1)*step;
+                var t3_width = ($('#t3_endAA').val()-$('#t3_startAA').val()+1)*step;
+                var t4_width = ($('#t4_endAA').val()-$('#t4_startAA').val()+1)*step;
+                var t5_width = ($('#t5_endAA').val()-$('#t5_startAA').val()+1)*step;
+                var t6_width = ($('#t6_endAA').val()-$('#t6_startAA').val()+1)*step;
+                //输出
+                $('#t1_pos').html(t1_pos) ;
+                $('#t2_pos').html(t2_pos) ;
+                $('#t3_pos').html(t3_pos) ;
+                $('#t4_pos').html(t4_pos) ;
+                $('#t5_pos').html(t5_pos) ;
+                $('#t6_pos').html(t6_pos) ;
+
+                $('#t1_width').html(t1_width) ;
+                $('#t2_width').html(t2_width) ;
+                $('#t3_width').html(t3_width) ;
+                $('#t4_width').html(t4_width) ;
+                $('#t5_width').html(t5_width) ;
+                $('#t6_width').html(t6_width) ;
+                //绘图
+                $("#f_img").css({"left":f_pos,"width":f_width})
+                $("#t1_img").css({"left":t1_pos,"width":t1_width})
+                $("#t2_img").css({"left":t2_pos,"width":t2_width})
+                $("#t3_img").css({"left":t3_pos,"width":t3_width})
+                $("#t4_img").css({"left":t4_pos,"width":t4_width})
+                $("#t5_img").css({"left":t5_pos,"width":t5_width})
+                $("#t6_img").css({"left":t6_pos,"width":t6_width})
+
+                $("#f_pro_name").html($("#f_name").val())
+                $("#t1_pro_name").html($("#t1_name").val())
+                $("#t2_pro_name").html($("#t2_name").val())
+                $("#t3_pro_name").html($("#t3_name").val())
+                $("#t4_pro_name").html($("#t4_name").val())
+                $("#t5_pro_name").html($("#t5_name").val())
+                $("#t6_pro_name").html($("#t6_name").val())
+
+                $("#f_inf").html($("#f_startAA").val()+ "-" + $("#f_endAA").val() + "aa")
+                $("#t1_inf").html($("#t1_startAA").val()+ "-" + $("#t1_endAA").val() + "aa")
+                $("#t2_inf").html($("#t2_startAA").val()+ "-" + $("#t2_endAA").val() + "aa")
+                $("#t3_inf").html($("#t3_startAA").val()+ "-" + $("#t3_endAA").val() + "aa")
+                $("#t4_inf").html($("#t4_startAA").val()+ "-" + $("#t4_endAA").val() + "aa")
+                $("#t5_inf").html($("#t5_startAA").val()+ "-" + $("#t5_endAA").val() + "aa")
+                $("#t6_inf").html($("#t6_startAA").val()+ "-" + $("#t6_endAA").val() + "aa")
+            })
+            
+        })
+        
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">截短体绘图辅助</h1><br/>
+        <h4>蛋白信息输入</h4><input type="button" value="计算" id="calculate" class="btn btn-primary ">
+        <table class="table table-bordered">
+            <tr>
+                <th>序号</th>
+                <th>Protein Name</th>
+                <th>起始氨基酸位置</th>
+                <th>终止氨基酸位置</th>
+                <th>图像位置（距左侧，px）</th>
+                <th>图像长度（px）</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td><input type="text" value="Full length" id="f_name"></td>
+                <td><input type="text" value="1" id="f_startAA"></td>
+                <td><input type="text" value="200" id="f_endAA"></td>
+                <td><input type="text" id="f_pos" value=0></td>
+                <td><input type="text" id="f_width" value=800></td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td><input type="text" value="NTD" id="t1_name"></td>
+                <td><input type="text" value="1" id="t1_startAA"></td>
+                <td><input type="text" value="20" id="t1_endAA"></td>
+                <td><span id="t1_pos"></span></td>
+                <td><span id="t1_width"></span></td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td><input type="text" value="TM" id="t2_name"></td>
+                <td><input type="text" value="21" id="t2_startAA"></td>
+                <td><input type="text" value="80" id="t2_endAA"></td>
+                <td><span id="t2_pos"></span></td>
+                <td><span id="t2_width"></span></td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td><input type="text" value="Domain I" id="t3_name"></td>
+                <td><input type="text" value="61" id="t3_startAA"></td>
+                <td><input type="text" value="100" id="t3_endAA"></td>
+                <td><span id="t3_pos"></span></td>
+                <td><span id="t3_width"></span></td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td><input type="text" value="Domain II" id="t4_name"></td>
+                <td><input type="text" value="111" id="t4_startAA"></td>
+                <td><input type="text" value="140" id="t4_endAA"></td>
+                <td><span id="t4_pos"></span></td>
+                <td><span id="t4_width"></span></td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td><input type="text" value="Domain III" id="t5_name"></td>
+                <td><input type="text" value="141" id="t5_startAA"></td>
+                <td><input type="text" value="170" id="t5_endAA"></td>
+                <td><span id="t5_pos"></span></td>
+                <td><span id="t5_width"></span></td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td><input type="text" value="CTD" id="t6_name"></td>
+                <td><input type="text" value="171" id="t6_startAA"></td>
+                <td><input type="text" value="200" id="t6_endAA"></td>
+                <td><span id="t6_pos"></span></td>
+                <td><span id="t6_width"></span></td>
+            </tr>
+        </table>
+
+        <h4>参考图像</h4>
+        <div class="container">
+            <div class="row">
+                <div class="center-block col-md-2">
+                    <h4><span id="f_pro_name"> </span></h4>
+                </div>
+                <div class="col-md-8">
+                    <div id="f_img" style=" position:relative;  height: 30px; border: 2px solid Tomato;"></div>
+                </div>
+                <div class="col-md-2">
+                    <h4><span id="f_inf"> </span></h4>
+                </div>
+            </div><br/>
+            <div class="row">
+                <div class="center-block col-md-2">
+                    <h4><span id="t1_pro_name"> </span></h4>
+                </div>
+                <div class="col-md-8">
+                    <div id="t1_img" style="position:relative;  height: 30px;  border: 2px solid rgb(29, 2, 59);"></div>
+                </div>
+                <div class="col-md-2">
+                    <h4><span id="t1_inf"> </span></h4>
+                </div>
+            </div><br/>
+            <div class="row">
+                <div class="center-block col-md-2">
+                    <h4><span id="t2_pro_name"> </span></h4>
+                </div>
+                <div class="col-md-8">
+                    <div id="t2_img" style="position:relative;  height: 30px;  border: 2px solid rgb(29, 2, 59);"></div>
+                </div>
+                <div class="col-md-2">
+                    <h4><span id="t2_inf"> </span></h4>
+                </div>
+            </div><br/>
+            <div class="row">
+                <div class="center-block col-md-2">
+                    <h4><span id="t3_pro_name"> </span></h4>
+                </div>
+                <div class="col-md-8">
+                    <div id="t3_img" style="position:relative;  height: 30px;  border: 2px solid rgb(29, 2, 59);"></div>
+                </div>
+                <div class="col-md-2">
+                    <h4><span id="t3_inf"> </span></h4>
+                </div>
+            </div><br/>
+            <div class="row">
+                <div class="center-block col-md-2">
+                    <h4><span id="t4_pro_name"> </span></h4>
+                </div>
+                <div class="col-md-8">
+                    <div id="t4_img" style="position:relative;  height: 30px;  border: 2px solid rgb(29, 2, 59);"></div>
+                </div>
+                <div class="col-md-2">
+                    <h4><span id="t4_inf"> </span></h4>
+                </div>
+            </div><br/>
+            <div class="row">
+                <div class="center-block col-md-2">
+                    <h4><span id="t5_pro_name"> </span></h4>
+                </div>
+                <div class="col-md-8">
+                    <div id="t5_img" style="position:relative;  height: 30px;  border: 2px solid rgb(29, 2, 59);"></div>
+                </div>
+                <div class="col-md-2">
+                    <h4><span id="t5_inf"> </span></h4>
+                </div>
+            </div><br/>
+            <div class="row">
+                <div class="center-block col-md-2">
+                    <h4><span id="t6_pro_name"> </span></h4>
+                </div>
+                <div class="col-md-8">
+                    <div id="t6_img" style="position:relative;  height: 30px;  border: 2px solid rgb(29, 2, 59);"></div>
+                </div>
+                <div class="col-md-2">
+                    <h4><span id="t6_inf"> </span></h4>
+                </div>
+            </div><br/>
+        </div>
+        
+    </div>
+
+</body>
+</html>
