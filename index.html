@@ -25,7 +25,25 @@
     <style>
         #searchDiv {
             background-image: url("./newbg4.jpeg");
+            background-size: contain;
+            min-width: 100%;
+            min-height: 10vh;
         }
+        .hover-select {
+      position: relative;
+      display: inline-block;
+    }
+
+    .hover-select .dropdown-menu {
+      display: none;  /* 默认隐藏 */
+      position: absolute;
+      top: 100%; /* 放置在父元素下面 */
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+        
     </style>
 	<script>
 	$(document).ready(function(){
@@ -44,26 +62,18 @@
                 formElt.action="https://www.baidu.com/s"
 				keyWordElt.name="wd"
 			}
-			if(searchListElt.value == "goole"){
+			if(searchListElt.value == "google"){
 				formElt.method = "get"
                 formElt.action="https://www.google.com/search"
 				keyWordElt.name="q"
 			}
-			if(searchListElt.value == "zhihu"){
-				formElt.method = "get"
-                formElt.action="https://www.zhihu.com/search"
-				keyWordElt.name="q"
-			}
+			
             if(searchListElt.value == "bing"){
                 formElt.method = "get"
                 formElt.action="https://cn.bing.com/search"
 				keyWordElt.name="q"
             }
-            if(searchListElt.value == "sogou"){
-                formElt.method = "get"
-                formElt.action="https://www.sogou.com/web"
-				keyWordElt.name="query"
-            }
+            
             if(searchListElt.value == "bilibili"){
                 formElt.method = "get"
                 formElt.action="https://search.bilibili.com/all"
@@ -97,6 +107,8 @@
 				//alert("语言相同")
 			}
 		})
+
+        
 		//ajax
 		var translate = function(){
 			var query = document.getElementById("queryBox").value
@@ -126,12 +138,13 @@
             }
                 
 		}
+        /*
         $("#queryBox").blur(function(){
 			if(this.value != ""){
                translate()
             }
              
-		})
+		})*/
         $("#translateBtn").click(function(){
             translate()
         })
@@ -140,10 +153,7 @@
                 translate()
             }
 		})
-        $("#clearBtn").click(function(){
-            $("#queryBox").value = "";
-            $("#dstBox").value = "";
-        })
+        
 			
 		
 	})
@@ -154,6 +164,7 @@
   <body>
     <div class="container-fluid" >  
         <div id="searchDiv" class="jumbotron text-center" >
+            
             <h1 style="color: rgb(77, 63, 63);">生物常用导航网站</h1>
             <!--搜索组件-->
             <form  role="form"  action="https://cn.bing.com/search" target=_blank id= "searchForm" >
@@ -163,8 +174,8 @@
                             <option value="bing">必应</option>
                             <option value="baidu">百度</option>
                             <option value="doi">doi搜索</option>
-                            <option value="goole">Google</option>
-                            <option value="zhihu">知乎</option>
+                            <option value="google">Google</option>
+                            
                             <option value="bilibili">B站</option>
                         </select>
                     </div>
@@ -202,14 +213,15 @@
                 </span>
                 <span class="col-md-4 col-xs-8">
                     <button id="translateBtn" class="btn btn-primary " type="button"  > 翻译  </button>                                  
-                    <button id="clearBtn" class="btn btn-danger " type="reset" form="translateForm" > 清空</button>
+                    <button  class="btn btn-danger " type="reset" form="translateForm" > 清空</button>
                     <button  class="btn btn-primary " onclick="window.open('https://www.deepl.com/zh/translator')" type="button" > DeepL</button>
                 </span>
             </div>
             <form style="position: relative;top:10px;" id="translateForm" class="form-inline">
                 <div class="row">
-                    <div class="col-md-4 col-xs-6">
+                    <div class="input-container col-md-4 col-xs-6">
                         <textarea class="form-control" rows="3" style="width: 100%;" placeholder="请输入需要翻译的单词" id="queryBox"></textarea>
+                        
                     </div>
                     <div class="col-md-4 col-xs-6">
                         <textarea class="form-control" rows="3" style="width: 100%;" type="text"  id="dstBox" readonly></textarea>
