@@ -165,7 +165,7 @@
     <div class="container-fluid" >  
         <div id="searchDiv" class="jumbotron text-center" >
             
-            <h1 style="color: rgb(77, 63, 63);">生物常用导航网站</h1>
+            <h1 style="color: rgb(238,63,77);">生物常用导航网站</h1>
             <!--搜索组件-->
             <form  role="form"  action="https://cn.bing.com/search" target=_blank id= "searchForm" >
                 <div  class="row row-no-gutters text-center">
@@ -175,7 +175,6 @@
                             <option value="baidu">百度</option>
                             <option value="doi">doi搜索</option>
                             <option value="google">Google</option>
-                            
                             <option value="bilibili">B站</option>
                         </select>
                     </div>
@@ -215,6 +214,7 @@
                     <button id="translateBtn" class="btn btn-primary " type="button"  > 翻译  </button>                                  
                     <button  class="btn btn-danger " type="reset" form="translateForm" > 清空</button>
                     <button  class="btn btn-primary " onclick="window.open('https://www.deepl.com/zh/translator')" type="button" > DeepL</button>
+                                        
                 </span>
             </div>
             <form style="position: relative;top:10px;" id="translateForm" class="form-inline">
@@ -225,6 +225,15 @@
                     </div>
                     <div class="col-md-4 col-xs-6">
                         <textarea class="form-control" rows="3" style="width: 100%;" type="text"  id="dstBox" readonly></textarea>
+                    </div>
+                    <div class="col-md-4 col-xs-6">
+                        <a href="https://www.deepseek.com" target="_blank">
+                            <img src="./img/deepseek_logo.webp" 
+                                 alt="DeepSeek Logo" 
+                                 width="342"
+                                 height="74"
+                            >
+                        </a>  
                     </div>
                 </div>
             </form>
