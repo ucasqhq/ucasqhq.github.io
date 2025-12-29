@@ -1,0 +1,2593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冻存盒管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            min-height: 600px;
+        }
+        
+        .box-list-sidebar {
+            width: 250px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .sidebar-header h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .action-buttons button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .action-buttons button:hover {
+            opacity: 0.9;
+        }
+        
+        .action-buttons .export {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .action-buttons .import {
+            background-color: #9b59b6;
+            color: white;
+        }
+        
+        .filter-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .sample-search-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-controls input,
+        .filter-controls select,
+        .sample-search-controls input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .sample-search-controls button {
+            padding: 8px 16px;
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .sample-search-controls button:hover {
+            background-color: #7f8c8d;
+        }
+        
+        /* 复制模式样式 */
+        .visualization-panel.copy-mode {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.2));
+            border: 2px solid #3498db;
+            animation: copyModeGlow 2s infinite;
+            position: relative;
+        }
+        
+        .visualization-panel.copy-mode::before {
+            content: "📋 复制模式 - 点击任意格子粘贴样品信息";
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #3498db;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.5);
+        }
+        
+        @keyframes copyModeGlow {
+            0% { 
+                border-color: #3498db;
+                box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+            }
+            50% { 
+                border-color: #2980b9;
+                box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
+            }
+            100% { 
+                border-color: #3498db;
+                box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+            }
+        }
+        
+        .visualization-panel.batch-delete-mode {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.2));
+            border: 2px solid #e74c3c;
+            animation: deleteModeGlow 1.5s infinite;
+            position: relative;
+        }
+        
+        .visualization-panel.batch-delete-mode::before {
+            content: "🗑️ 批量删除模式 - 点击格子标记要删除的样品";
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e74c3c;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(231, 76, 60, 0.5);
+        }
+        
+        .grid-cell-large.to-delete {
+            border: 3px solid #e74c3c !important;
+            animation: deleteCellPulse 1s infinite;
+        }
+        
+        @keyframes deleteModeGlow {
+            0% { 
+                border-color: #e74c3c;
+                box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+            }
+            50% { 
+                border-color: #c0392b;
+                box-shadow: 0 0 25px rgba(231, 76, 60, 0.6);
+            }
+            100% { 
+                border-color: #e74c3c;
+                box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+            }
+        }
+        
+        @keyframes deleteCellPulse {
+            0% { 
+                transform: scale(1);
+            }
+            50% { 
+                transform: scale(0.95);
+            }
+            100% { 
+                transform: scale(1);
+            }
+        }
+        
+        .box-list {
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .box-list-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .box-list-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .box-list-item.active {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .box-list-item-info {
+            flex: 1;
+        }
+        
+        .box-list-item-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .box-list-item-spec {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .box-list-item-location {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 12px;
+            color: white;
+            margin-top: 5px;
+        }
+        
+        /* 不同位置的颜色区分 */
+        .location-液氮 {
+            background-color: #3498db; /* 蓝色 - 冷色调 */
+        }
+        
+        .location--20 {
+            background-color: #27ae60; /* 深绿色 - 冷色调 */
+        }
+        
+        .location--80 {
+            background-color: #8e44ad; /* 紫色 - 中性偏冷 */
+        }
+        
+        .location-4度 {
+            background-color: #16a085; /* 青绿色 - 冷色调 */
+        }
+        
+        .location-其他 {
+            background-color: #7f8c8d; /* 灰色 - 中性色调 */
+        }
+        
+        /* 不同样本类型的颜色区分 */
+        .grid-cell-large.sample-type-细胞 {
+            background-color: #9b59b6 !important; /* 紫色 */
+            color: white !important;
+        }
+        
+        .grid-cell-large.sample-type-细菌 {
+            background-color: #2ecc71 !important; /* 绿色 */
+            color: white !important;
+        }
+        
+        .grid-cell-large.sample-type-组织-血液 {
+            background-color: #e74c3c !important; /* 红色 */
+            color: white !important;
+        }
+        
+        .grid-cell-large.sample-type-病毒 {
+            background-color: #f39c12 !important; /* 橙色 */
+            color: white !important;
+        }
+        
+        .grid-cell-large.sample-type-质粒 {
+            background-color: #3498db !important; /* 蓝色 */
+            color: white !important;
+        }
+        
+        .grid-cell-large.sample-type-RNA {
+            background-color: #1abc9c !important; /* 青绿色 */
+            color: white !important;
+        }
+        
+        .grid-cell-large.sample-type-DNA {
+            background-color: #34495e !important; /* 深蓝色 */
+            color: white !important;
+        }
+        
+        .grid-cell-large.sample-type-蛋白 {
+            background-color: #d35400 !important; /* 深橙色 */
+            color: white !important;
+        }
+        
+        .grid-cell-large.sample-type-其他 {
+            background-color: #95a5a6 !important; /* 灰色 */
+            color: white !important;
+        }
+        
+        .sample-type-legend {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .sample-type-legend h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
+        .sample-type-legend .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .sample-type-legend .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #555;
+        }
+        
+        .sample-type-legend .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .content-area {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+        
+        .visualization-panel {
+            flex: 4;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sample-management-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .selected-box-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex: 1;
+        }
+        
+        .selected-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .selected-box-header h2 {
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .selected-box-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .selected-box-info {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .selected-box-description {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .selected-box-grid-container {
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .selected-box-grid {
+            display: grid;
+            gap: 2px;
+            margin: 0 auto;
+            max-width: 100%;
+            max-height: 100%;
+            overflow: hidden;
+        }
+        
+        .selected-box-grid.spec-9x9 {
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+        }
+        
+        .selected-box-grid.spec-8x12 {
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+        }
+        
+        .selected-box-grid.spec-10x10 {
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+        }
+        
+        .selected-box-grid.spec-5x10 {
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+        }
+        
+        .selected-box-grid.spec-6x12 {
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+        }
+        
+        .grid-cell-large {
+            width: 70px;
+            height: 70px;
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-align: center;
+            overflow: hidden;
+            padding: 2px;
+            word-wrap: break-word;
+            word-break: break-all;
+            line-height: 1.2;
+            white-space: normal;
+        }
+        
+        .grid-cell-large:hover {
+            background-color: #d5dbdb;
+            transform: scale(1.05);
+        }
+        
+        .grid-cell-large.occupied {
+            /* 背景色由样本类型样式决定 */
+            color: white;
+        }
+        
+        .grid-cell-large.selected {
+            border: 3px solid #e74c3c;
+            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3), 0 0 10px rgba(231, 76, 60, 0.5);
+            z-index: 10;
+            position: relative;
+            animation: pulse 1s ease-in-out;
+        }
+        
+        .grid-cell-large.highlighted {
+            border: 3px solid #f39c12;
+            box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.3), 0 0 10px rgba(243, 156, 18, 0.5);
+            z-index: 5;
+            position: relative;
+            animation: highlight 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes highlight {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        .grid-cell-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .grid-cell-large:hover .grid-cell-tooltip {
+            opacity: 1;
+        }
+        
+        .no-box-selected {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .no-box-selected p {
+            color: #7f8c8d;
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        /* Toast提示样式 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .toast {
+            background-color: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 300px;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            background-color: #27ae60;
+        }
+        
+        .toast.error {
+            background-color: #e74c3c;
+        }
+        
+        .toast.warning {
+            background-color: #f39c12;
+        }
+        
+        /* 样品管理面板样式 */
+        .sample-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .sample-panel-header h3 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .current-cell-info {
+            font-size: 14px;
+            color: #7f8c8d;
+            background-color: #ecf0f1;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        .sample-form {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sample-form .form-group {
+            margin: 10px 0;
+        }
+        
+        .sample-form .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .sample-form .form-group input,
+        .sample-form .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .sample-form .form-group textarea {
+            height: 60px;
+            resize: vertical;
+        }
+        
+        .sample-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .sample-actions button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        /* 未选中格子提示样式 */
+        .no-cell-selected {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 320px;
+            /* background-color: #f8f9fa; */
+            border-radius: 8px;
+            margin-bottom: 20px;
+            /* border: 2px dashed #dee2e6; */
+        }
+        
+        .no-cell-selected p {
+            color: #6c757d;
+            font-size: 16px;
+            text-align: center;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        /* 样品信息容器样式 */
+        .sample-info-container {
+            min-height: 200px;
+            margin-bottom: 20px;
+            
+        }
+        
+        .save-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
+        }
+        
+        .save-btn:hover {
+            background-color: #27ae60;
+            box-shadow: 0 4px 8px rgba(46, 204, 113, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .save-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
+        }
+        
+        .save-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .save-btn:disabled:hover {
+            background-color: #bdc3c7;
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .clear-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .clear-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .clear-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .clear-btn:disabled:hover {
+            background-color: #bdc3c7;
+        }
+        
+        .copy-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .copy-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .copy-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .copy-btn:disabled:hover {
+            background-color: #bdc3c7;
+        }
+        
+        .batch-delete-btn {
+            background-color: #c0392b;
+            color: white;
+            flex: 1;
+        }
+        
+        .batch-delete-btn:hover {
+            background-color: #a93226;
+        }
+        
+        .batch-delete-btn.active {
+            background-color: #e74c3c;
+            animation: pulse-red 1.5s infinite;
+        }
+        
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+            }
+        }
+        
+        .edit-btn {
+            background-color: #f39c12;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .edit-btn:hover {
+            background-color: #e67e22;
+        }
+        
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        .toolbar {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .toolbar input, .toolbar select, .toolbar button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .toolbar button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .toolbar button:hover {
+            background-color: #2980b9;
+        }
+        
+        .toolbar button.delete {
+            background-color: #e74c3c;
+        }
+        
+        .toolbar button.delete:hover {
+            background-color: #c0392b;
+        }
+        
+        .toolbar button.export {
+            background-color: #2ecc71;
+        }
+        
+        .toolbar button.export:hover {
+            background-color: #27ae60;
+        }
+        
+        .search-bar {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .box-spec {
+            font-size: 12px;
+            color: #7f8c8d;
+            background-color: #ecf0f1;
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+        
+        .box-location {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            color: white;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-buttons .save-btn {
+            min-width: 80px;
+            padding: 10px 20px;
+        }
+        
+        .cancel-btn {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+        }
+        
+        .cancel-btn:hover {
+            background-color: #7f8c8d;
+        }
+        
+        /* 欢迎对话框样式 */
+        .welcome-modal {
+            max-width: 600px;
+            margin: 10% auto;
+        }
+        
+        .welcome-content {
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .welcome-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .welcome-section h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .welcome-section ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .welcome-section li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+            color: #555;
+        }
+        
+        .welcome-section li strong {
+            color: #2c3e50;
+        }
+        
+        /* 使用指南按钮样式 */
+        .help-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .help-button:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            
+            .box-list-sidebar {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-bar {
+                margin-bottom: 10px;
+            }
+            
+            .box-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>冻存盒管理系统</h1>
+        <button id="helpBtn" class="help-button">使用指南</button>
+        <div class="main-layout">
+            <!-- 左侧冻存盒列表和操作按钮 -->
+            <div class="box-list-sidebar">
+                <div class="sidebar-header">
+                    <h3>冻存盒管理</h3>
+                    <div class="action-buttons">
+                        <button id="newBoxBtn">新建冻存盒</button>
+                        <button id="exportBtn" class="export">导出为CSV</button>
+                        <button id="importBtn" class="import">从CSV导入</button>
+                    </div>
+                    <div class="filter-controls">
+                        <input type="text" id="searchInput" class="search-bar" placeholder="搜索冻存盒...">
+                        <select id="locationSelect">
+                            <option value="">所有位置</option>
+                            <option value="液氮">液氮</option>
+                            <option value="-20">-20℃</option>
+                            <option value="-80">-80℃</option>
+                            <option value="4度">4℃</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="sample-search-controls">
+                        <input type="text" id="sampleSearchInput" class="search-bar" placeholder="搜索样品名称...">
+                        <button id="clearSampleSearchBtn" class="clear-btn">清除搜索</button>
+                    </div>
+                </div>
+                <div id="boxList" class="box-list">
+                    <!-- 冻存盒列表将在这里动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 右侧主内容区域 -->
+            <div class="main-content">
+                
+                <!-- 主内容区域 -->
+                <div class="content-area">
+                    <!-- 左侧：冻存盒可视化展示 -->
+                    <div class="visualization-panel">
+                        <!-- 单个冻存盒可视化展示区域 -->
+                        <div id="selectedBoxContainer" class="selected-box-container" style="display: none;">
+                            <div class="selected-box-header">
+                                <h2 id="selectedBoxName">冻存盒名称</h2>
+                                <div class="selected-box-actions">
+                                    <button id="editBoxBtn" class="edit-btn">编辑冻存盒</button>
+                                    <button id="deleteBoxBtn" class="delete-btn">删除冻存盒</button>
+                                </div>
+                            </div>
+                            <div class="selected-box-info">
+                                <span class="box-spec" id="selectedBoxSpec">规格</span>
+                                <span class="box-location" id="selectedBoxLocation">位置</span>
+                            </div>
+                            <div class="selected-box-description" id="selectedBoxDescription"></div>
+                            <div class="selected-box-grid-container">
+                                <div id="selectedBoxGrid" class="selected-box-grid">
+                                    <!-- 冻存盒格子将在这里动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 无选中冻存盒时的提示 -->
+                        <div id="noBoxSelected" class="no-box-selected">
+                            <p>请从左侧列表中选择一个冻存盒进行查看</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧：样品管理面板 -->
+                    <div class="sample-management-panel">
+                        <div class="sample-panel-header">
+                            <h3>样品管理</h3>
+                            <div class="current-cell-info">
+                                <span id="currentCellNumber">未选择格子</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 样品信息表单 -->
+                        <div class="sample-form">
+                            <!-- 未选中格子时的提示 -->
+                            <div id="noCellSelected" class="no-cell-selected">
+                                <p>请先选择一个格子以查看或编辑样品信息</p>
+                            </div>
+                            
+                            <!-- 样品信息容器 -->
+                            <div id="sampleInfoContainer" class="sample-info-container" style="display: none;">
+                                <div class="form-group">
+                                    <label for="sampleName">样品名称 *</label>
+                                    <input type="text" id="sampleName" placeholder="输入样品名称" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sampleType">样品类型 *</label>
+                                    <select id="sampleType" required>
+                                        <option value="">请选择样品类型</option>
+                                        <option value="细胞">细胞</option>
+                                        <option value="细菌">细菌</option>
+                                        <option value="组织/血液">组织/血液</option>
+                                        <option value="病毒">病毒</option>
+                                        <option value="质粒">质粒</option>
+                                        <option value="RNA">RNA</option>
+                                        <option value="DNA">DNA</option>
+                                        <option value="蛋白">蛋白</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sampleDate">存储日期</label>
+                                    <input type="date" id="sampleDate">
+                                </div>
+                                <div class="form-group">
+                                    <label for="sampleDescription">备注</label>
+                                    <textarea id="sampleDescription" placeholder="输入备注信息"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="sample-actions">
+                                <button id="saveSampleBtn" class="save-btn">保存样品</button>
+                                <button id="copySampleBtn" class="copy-btn">复制样品</button>
+                                <button id="clearSampleBtn" class="clear-btn">删除样品</button>
+                                <button id="batchDeleteBtn" class="batch-delete-btn">批量删除</button>
+                            </div>
+                            <div class="sample-type-legend">
+                                <h4>样品类型颜色图例</h4>
+                                <div class="legend-items">
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #9b59b6;"></span>
+                                        <span>细胞</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #2ecc71;"></span>
+                                        <span>细菌</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #e74c3c;"></span>
+                                        <span>组织/血液</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #f39c12;"></span>
+                                        <span>病毒</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #3498db;"></span>
+                                        <span>质粒</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #1abc9c;"></span>
+                                        <span>RNA</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #34495e;"></span>
+                                        <span>DNA</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #d35400;"></span>
+                                        <span>蛋白</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #95a5a6;"></span>
+                                        <span>其他</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast提示容器 -->
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <!-- 首次访问使用说明模态框 -->
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content welcome-modal">
+            <span class="close" id="welcomeClose">&times;</span>
+            <h2>欢迎使用冻存盒管理系统</h2>
+            <div class="welcome-content">
+                <div class="welcome-section">
+                    <h3>📋 使用说明</h3>
+                    <ul>
+                        <li><strong>创建冻存盒</strong>：点击左侧"新建冻存盒"按钮，填写信息后保存</li>
+                        <li><strong>管理样品</strong>：选中冻存盒后，点击格子可以添加/编辑样品信息</li>
+                        <li><strong>复制样品</strong>：选中样品后点击"复制样品"，然后可以粘贴到其他格子</li>
+                        <li><strong>批量删除</strong>：点击"批量删除"按钮，标记要删除的样品后确认</li>
+                        <li><strong>搜索筛选</strong>：可全局搜索样品位置，以格子高亮显示</li>
+                    </ul>
+                </div>
+                <div class="welcome-section">
+                    <h3>⚠️ 注意事项</h3>
+                    <ul>
+                        <li>所有数据临时保存在浏览器本地不会上传服务器</li>
+                        <li>临时保存数据易丢失，请自行备份重要数据</li>
+                        <li>导出的CSV格式兼容Excel表格，但修改后的CSV文件可能无法导入，请尽量不对CSV文件进行手动编辑</li>
+                        <li>批量删除操作不可恢复，请谨慎操作</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="save-btn" id="welcomeConfirmBtn">开始使用</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新建/编辑冻存盒模态框 -->
+    <div id="boxModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">新建冻存盒</h2>
+            <form id="boxForm">
+                <div class="form-group">
+                    <label for="boxName">冻存盒名称</label>
+                    <input type="text" id="boxName" required>
+                </div>
+                <div class="form-group">
+                    <label for="boxSpec">规格</label>
+                    <select id="boxSpec" required>
+                        <option value="9x9">9×9</option>
+                        <option value="8x12">8×12</option>
+                        <option value="10x10">10×10</option>
+                        <option value="5x10">5×10</option>
+                        <option value="6x12">6×12</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="boxLocation">位置</label>
+                    <select id="boxLocation" required>
+                        <option value="液氮">液氮</option>
+                        <option value="-20">-20℃</option>
+                        <option value="-80">-80℃</option>
+                        <option value="4度">4℃</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="boxDescription">描述</label>
+                    <textarea id="boxDescription"></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="save-btn">保存</button>
+                    <button type="button" class="cancel-btn" id="boxCancelBtn">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+
+    <script>
+        // 冻存盒管理类使用说明
+        class CryoBoxManager {
+            constructor() {
+                this.boxes = this.loadBoxes();
+                this.currentEditBoxId = null;
+                this.currentSampleBoxId = null;
+                this.currentSampleCellIndex = null;
+                this.currentSelectedBoxId = null;
+                this.currentSelectedCellIndex = null;
+                this.copiedSample = null; // 存储复制的样品信息
+                this.isCopyMode = false; // 复制模式状态
+                this.isBatchDeleteMode = false; // 批量删除模式状态
+                this.deleteMarkedCells = []; // 标记要删除的格子
+                this.sampleSearchTerm = ''; // 样品搜索关键词
+                this.searchResults = []; // 搜索结果
+                this.initEventListeners();
+                this.renderBoxList();
+                this.checkFirstVisit();
+                this.updateSampleButtonsState(); // 初始化按钮状态
+            }
+            
+            // 从localStorage加载冻存盒数据
+            loadBoxes() {
+                const stored = localStorage.getItem('cryoBoxes');
+                return stored ? JSON.parse(stored) : [];
+            }
+            
+            // 保存冻存盒数据到localStorage
+            saveBoxes() {
+                localStorage.setItem('cryoBoxes', JSON.stringify(this.boxes));
+            }
+            
+            // 初始化事件监听器
+            initEventListeners() {
+                // 使用指南按钮
+                document.getElementById('helpBtn').addEventListener('click', () => {
+                    this.showWelcomeModal();
+                });
+                
+                // 新建冻存盒按钮
+                document.getElementById('newBoxBtn').addEventListener('click', () => {
+                    this.currentEditBoxId = null;
+                    this.showBoxModal();
+                });
+                
+                // 导出CSV按钮
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportToCSV();
+                });
+                
+                // 导入CSV按钮
+                document.getElementById('importBtn').addEventListener('click', () => {
+                    this.importFromCSV();
+                });
+                
+                // 搜索功能
+                document.getElementById('searchInput').addEventListener('input', () => {
+                    this.renderBoxList();
+                });
+                
+                // 位置筛选
+                document.getElementById('locationSelect').addEventListener('change', () => {
+                    this.renderBoxList();
+                });
+                
+                // 样品搜索功能
+                document.getElementById('sampleSearchInput').addEventListener('input', (e) => {
+                    this.searchSamples(e.target.value);
+                });
+                
+                // 清除样品搜索
+                document.getElementById('clearSampleSearchBtn').addEventListener('click', () => {
+                    document.getElementById('sampleSearchInput').value = '';
+                    this.searchSamples('');
+                });
+                
+                // 冻存盒表单提交
+                document.getElementById('boxForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveBox();
+                });
+                
+
+                
+                // 编辑冻存盒按钮
+                document.getElementById('editBoxBtn').addEventListener('click', () => {
+                    if (this.currentSelectedBoxId) {
+                        const box = this.boxes.find(b => b.id === this.currentSelectedBoxId);
+                        if (box) {
+                            this.showBoxModal(box);
+                        }
+                    }
+                });
+                
+                // 删除冻存盒按钮
+                document.getElementById('deleteBoxBtn').addEventListener('click', () => {
+                    if (this.currentSelectedBoxId) {
+                        this.deleteBox(this.currentSelectedBoxId);
+                    }
+                });
+                
+                // 取消按钮
+                document.getElementById('boxCancelBtn').addEventListener('click', () => {
+                    document.getElementById('boxModal').style.display = 'none';
+                });
+                
+                // 保存样品按钮
+                document.getElementById('saveSampleBtn').addEventListener('click', () => {
+                    this.saveSample();
+                });
+                
+                // 复制样品按钮
+                document.getElementById('copySampleBtn').addEventListener('click', () => {
+                    if (this.isCopyMode) {
+                        // 退出复制模式
+                        this.isCopyMode = false;
+                        this.updateCopyButtonState();
+                        this.showToast('已退出复制模式', 'info');
+                    } else {
+                        this.copySample();
+                    }
+                });
+                
+                // 清空样品按钮
+                document.getElementById('clearSampleBtn').addEventListener('click', () => {
+                    this.clearSample();
+                });
+                
+                // 批量删除按钮
+                document.getElementById('batchDeleteBtn').addEventListener('click', () => {
+                    this.toggleBatchDeleteMode();
+                });
+                
+                // 模态框关闭按钮
+                const modals = document.querySelectorAll('.modal');
+                const closeBtns = document.querySelectorAll('.close');
+                
+                closeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        modals.forEach(modal => {
+                            modal.style.display = 'none';
+                        });
+                    });
+                });
+            }
+            
+            // 显示新建/编辑冻存盒模态框
+            showBoxModal(box = null) {
+                const modal = document.getElementById('boxModal');
+                const title = document.getElementById('modalTitle');
+                const form = document.getElementById('boxForm');
+                const boxSpecSelect = document.getElementById('boxSpec');
+                
+                if (box) {
+                    title.textContent = '编辑冻存盒';
+                    document.getElementById('boxName').value = box.name;
+                    document.getElementById('boxSpec').value = box.spec;
+                    boxSpecSelect.disabled = true;
+                    document.getElementById('boxLocation').value = box.location;
+                    document.getElementById('boxDescription').value = box.description;
+                    this.currentEditBoxId = box.id;
+                } else {
+                    title.textContent = '新建冻存盒';
+                    form.reset();
+                    boxSpecSelect.disabled = false;
+                    this.currentEditBoxId = null;
+                }
+                
+                modal.style.display = 'block';
+            }
+            
+            // 保存冻存盒
+            saveBox() {
+                const name = document.getElementById('boxName').value;
+                const spec = document.getElementById('boxSpec').value;
+                const location = document.getElementById('boxLocation').value;
+                const description = document.getElementById('boxDescription').value;
+                
+                if (this.currentEditBoxId) {
+                    // 编辑现有冻存盒
+                    const box = this.boxes.find(b => b.id === this.currentEditBoxId);
+                    if (box) {
+                        box.name = name;
+                        box.spec = spec;
+                        box.location = location;
+                        box.description = description;
+                        box.updatedAt = new Date().toISOString();
+                    }
+                } else {
+                    // 新建冻存盒
+                    const [rows, cols] = spec.split('x').map(Number);
+                    const newBox = {
+                        id: Date.now().toString(),
+                        name: name,
+                        spec: spec,
+                        location: location,
+                        description: description,
+                        rows: rows,
+                        cols: cols,
+                        cells: Array(rows * cols).fill(null),
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    this.boxes.push(newBox);
+                    // 新建后自动选中
+                    this.currentSelectedBoxId = newBox.id;
+                }
+                
+                this.saveBoxes();
+                this.renderBoxList();
+                this.renderSelectedBox();
+                document.getElementById('boxModal').style.display = 'none';
+            }
+            
+            // 删除冻存盒
+            deleteBox(boxId) {
+                if (confirm('确定要删除这个冻存盒吗？')) {
+                    this.boxes = this.boxes.filter(box => box.id !== boxId);
+                    
+                    // 如果删除的是当前选中的冻存盒，清空选中状态
+                    if (this.currentSelectedBoxId === boxId) {
+                        this.currentSelectedBoxId = null;
+                    }
+                    
+                    this.saveBoxes();
+                    this.renderBoxList();
+                    this.renderSelectedBox();
+                }
+            }
+            
+            // 显示样品信息模态框
+            showSampleModal(boxId, cellIndex) {
+                this.currentSampleBoxId = boxId;
+                this.currentSampleCellIndex = cellIndex;
+                
+                const modal = document.getElementById('sampleModal');
+                const form = document.getElementById('sampleForm');
+                const box = this.boxes.find(b => b.id === boxId);
+                const cell = box.cells[cellIndex];
+                
+                document.getElementById('boxId').value = boxId;
+                document.getElementById('cellIndex').value = cellIndex;
+                
+                if (cell) {
+                    document.getElementById('sampleName').value = cell.name || '';
+                    document.getElementById('sampleId').value = cell.id || '';
+                    document.getElementById('sampleType').value = cell.type || '';
+                    document.getElementById('sampleDate').value = cell.date || '';
+                    document.getElementById('sampleDescription').value = cell.description || '';
+                } else {
+                    form.reset();
+                }
+                
+                modal.style.display = 'block';
+            }
+            
+            // 保存样品信息
+            saveSample() {
+                if (!this.currentSampleBoxId || this.currentSampleCellIndex === null) {
+                    this.showToast('请先选择一个格子', 'warning');
+                    return;
+                }
+                
+                const boxId = this.currentSampleBoxId;
+                const cellIndex = this.currentSampleCellIndex;
+                const box = this.boxes.find(b => b.id === boxId);
+                
+                if (!box) {
+                    this.showToast('找不到对应的冻存盒，请刷新页面重试', 'error');
+                    return;
+                }
+                
+                const sampleName = document.getElementById('sampleName').value.trim();
+                const sampleType = document.getElementById('sampleType').value.trim();
+                
+                // 验证样品名称和类型不能为空
+                if (!sampleName) {
+                    this.showToast('样品名称不能为空', 'error');
+                    document.getElementById('sampleName').focus();
+                    return;
+                }
+                
+                if (!sampleType) {
+                    this.showToast('样品类型不能为空', 'error');
+                    document.getElementById('sampleType').focus();
+                    return;
+                }
+                
+                const sampleData = {
+                    name: sampleName,
+                    type: sampleType,
+                    date: document.getElementById('sampleDate').value || new Date().toISOString().split('T')[0],
+                    description: document.getElementById('sampleDescription').value,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                box.cells[cellIndex] = sampleData;
+                box.updatedAt = new Date().toISOString();
+                
+                this.saveBoxes();
+                this.renderSelectedBox();
+                
+                this.showToast('样品信息已保存', 'success');
+            }
+            
+            // 清空样品信息
+            clearSample() {
+                if (!this.currentSampleBoxId || this.currentSampleCellIndex === null) {
+                    this.showToast('请先选择一个格子', 'warning');
+                    return;
+                }
+                
+                const boxId = this.currentSampleBoxId;
+                const cellIndex = this.currentSampleCellIndex;
+                const box = this.boxes.find(b => b.id === boxId);
+                
+                if (!box) {
+                    this.showToast('找不到对应的冻存盒，请刷新页面重试', 'error');
+                    return;
+                }
+                
+                // 检查当前格子是否有样品
+                const currentCell = box.cells[cellIndex];
+                if (!currentCell) {
+                    this.showToast('当前格子没有样品信息', 'warning');
+                    return;
+                }
+                
+                // 添加确认提示框
+                if (!confirm(`确定要清空样品 "${currentCell.name || '未命名'}" 的信息吗？`)) {
+                    return;
+                }
+                
+                box.cells[cellIndex] = null;
+                box.updatedAt = new Date().toISOString();
+                
+                // 清空表单
+                document.getElementById('sampleName').value = '';
+                document.getElementById('sampleType').value = '';
+                document.getElementById('sampleDate').value = '';
+                document.getElementById('sampleDescription').value = '';
+                
+                this.saveBoxes();
+                this.renderSelectedBox();
+                
+                this.showToast('样品信息已清空', 'success');
+            }
+            
+            // 切换批量删除模式
+            toggleBatchDeleteMode() {
+                if (this.isBatchDeleteMode) {
+                    // 如果已经处于批量删除模式，执行删除并退出
+                    this.executeBatchDelete();
+                } else {
+                    // 进入批量删除模式
+                    this.isBatchDeleteMode = true;
+                    this.deleteMarkedCells = [];
+                    this.deselectCell();
+                    this.updateBatchDeleteButtonState();
+                    this.updateVisualizationPanel();
+                    this.showToast('批量删除模式 - 点击格子标记要删除的样品', 'info');
+                }
+            }
+            
+            // 更新批量删除按钮状态
+            updateBatchDeleteButtonState() {
+                const btn = document.getElementById('batchDeleteBtn');
+                if (this.isBatchDeleteMode) {
+                    btn.classList.add('active');
+                    if (this.deleteMarkedCells.length > 0) {
+                        btn.textContent = `确认删除 (${this.deleteMarkedCells.length})`;
+                    } else {
+                        btn.textContent = '退出批量删除';
+                    }
+                } else {
+                    btn.classList.remove('active');
+                    btn.textContent = '批量删除';
+                }
+            }
+            
+            // 更新样品操作按钮状态
+            updateSampleButtonsState() {
+                const saveBtn = document.getElementById('saveSampleBtn');
+                const copyBtn = document.getElementById('copySampleBtn');
+                const clearBtn = document.getElementById('clearSampleBtn');
+                
+                // 检查是否有选中的格子
+                const hasSelectedCell = this.currentSampleBoxId !== null && this.currentSampleCellIndex !== null;
+                
+                // 更新按钮禁用状态
+                saveBtn.disabled = !hasSelectedCell;
+                copyBtn.disabled = !hasSelectedCell;
+                clearBtn.disabled = !hasSelectedCell;
+            }
+            
+            // 更新可视化面板样式
+            updateVisualizationPanel() {
+                const panel = document.querySelector('.visualization-panel');
+                if (panel) {
+                    if (this.isBatchDeleteMode) {
+                        panel.classList.add('batch-delete-mode');
+                    } else {
+                        panel.classList.remove('batch-delete-mode');
+                    }
+                }
+            }
+            
+            // 标记格子为删除
+            markCellForDelete(boxId, cellIndex) {
+                const key = `${boxId}-${cellIndex}`;
+                const index = this.deleteMarkedCells.indexOf(key);
+                
+                if (index > -1) {
+                    // 取消标记
+                    this.deleteMarkedCells.splice(index, 1);
+                } else {
+                    // 添加标记
+                    this.deleteMarkedCells.push(key);
+                }
+                
+                // 更新格子样式
+                this.renderSelectedBox();
+                
+                // 更新批量删除按钮状态
+                this.updateBatchDeleteButtonState();
+            }
+            
+            // 执行批量删除
+            executeBatchDelete() {
+                if (this.deleteMarkedCells.length === 0) {
+                    this.isBatchDeleteMode = false;
+                    this.updateBatchDeleteButtonState();
+                    this.updateVisualizationPanel();
+                    this.showToast('已退出批量删除模式', 'info');
+                    return;
+                }
+                
+                // 确认删除
+                if (!confirm(`确定要删除 ${this.deleteMarkedCells.length} 个样品吗？此操作不可恢复。`)) {
+                    return;
+                }
+                
+                let deletedCount = 0;
+                
+                // 删除所有标记的样品
+                this.deleteMarkedCells.forEach(key => {
+                    const [boxId, cellIndexStr] = key.split('-');
+                    const cellIndex = parseInt(cellIndexStr);
+                    const box = this.boxes.find(b => b.id === boxId);
+                    
+                    if (box && box.cells[cellIndex]) {
+                        box.cells[cellIndex] = null;
+                        box.updatedAt = new Date().toISOString();
+                        deletedCount++;
+                    }
+                });
+                
+                // 重置状态
+                this.isBatchDeleteMode = false;
+                this.deleteMarkedCells = [];
+                
+                // 保存和渲染
+                this.saveBoxes();
+                this.updateBatchDeleteButtonState();
+                this.updateVisualizationPanel();
+                this.renderSelectedBox();
+                
+                this.showToast(`已删除 ${deletedCount} 个样品`, 'success');
+            }
+            
+            // 渲染左侧冻存盒列表
+            renderBoxList() {
+                const list = document.getElementById('boxList');
+                const filteredBoxes = this.getFilteredBoxes();
+                
+                list.innerHTML = filteredBoxes.map(box => this.createBoxListItem(box)).join('');
+                
+                // 添加列表项点击事件
+                filteredBoxes.forEach(box => {
+                    const listItem = document.querySelector(`[data-list-box-id="${box.id}"]`);
+                    if (listItem) {
+                        listItem.addEventListener('click', () => {
+                            this.selectBox(box.id);
+                        });
+                    }
+                });
+            }
+            
+            // 选中冻存盒
+            selectBox(boxId) {
+                this.deselectCell();
+                this.currentSelectedBoxId = boxId;
+                
+                // 高亮当前选中的列表项
+                document.querySelectorAll('.box-list-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                const listItem = document.querySelector(`[data-list-box-id="${boxId}"]`);
+                if (listItem) {
+                    listItem.classList.add('active');
+                }
+                
+                this.renderSelectedBox();
+            }
+            
+            // 渲染选中的冻存盒
+            renderSelectedBox() {
+                const container = document.getElementById('selectedBoxContainer');
+                const noBoxSelected = document.getElementById('noBoxSelected');
+                
+                if (this.currentSelectedBoxId) {
+                    const box = this.boxes.find(b => b.id === this.currentSelectedBoxId);
+                    if (box) {
+                        // 显示选中冻存盒容器，隐藏提示
+                        container.style.display = 'block';
+                        noBoxSelected.style.display = 'none';
+                        
+                        // 更新冻存盒信息
+                        document.getElementById('selectedBoxName').textContent = box.name;
+                        document.getElementById('selectedBoxSpec').textContent = box.spec;
+                        document.getElementById('selectedBoxLocation').textContent = box.location;
+                        document.getElementById('selectedBoxLocation').className = `box-location location-${box.location}`;
+                        
+                        // 更新描述
+                        const descriptionEl = document.getElementById('selectedBoxDescription');
+                        if (box.description) {
+                            descriptionEl.textContent = box.description;
+                            descriptionEl.style.display = 'block';
+                        } else {
+                            descriptionEl.style.display = 'none';
+                        }
+                        
+                        // 渲染冻存盒格子
+                        this.renderSelectedBoxGrid(box);
+                    }
+                } else {
+                    // 隐藏选中冻存盒容器，显示提示
+                    container.style.display = 'none';
+                    noBoxSelected.style.display = 'flex';
+                }
+            }
+            
+            // 渲染选中的冻存盒格子
+            renderSelectedBoxGrid(box) {
+                const grid = document.getElementById('selectedBoxGrid');
+                grid.className = `selected-box-grid spec-${box.spec}`;
+                
+                grid.innerHTML = box.cells.map((cell, index) => this.createGridCellLarge(cell, index, box.id)).join('');
+                
+                // 添加格子点击事件
+                const cells = grid.querySelectorAll('.grid-cell-large');
+                cells.forEach(cell => {
+                    cell.addEventListener('click', () => {
+                        const cellIndex = parseInt(cell.dataset.cellIndex);
+                        this.selectCell(box.id, cellIndex);
+                    });
+                });
+                
+                // 如果当前有选中的格子，重新应用选中样式
+                if (this.currentSampleBoxId === box.id && this.currentSampleCellIndex !== null) {
+                    const selectedCell = grid.querySelector(`[data-cell-index="${this.currentSampleCellIndex}"]`);
+                    if (selectedCell) {
+                        selectedCell.classList.add('selected');
+                    }
+                }
+            }
+            
+            // 选中格子
+            selectCell(boxId, cellIndex) {
+                // 如果在批量删除模式下，标记格子为删除
+                if (this.isBatchDeleteMode) {
+                    this.markCellForDelete(boxId, cellIndex);
+                    return;
+                }
+                
+                // 如果在复制模式下，执行粘贴操作
+                if (this.isCopyMode && this.copiedSample) {
+                    this.pasteToCell(boxId, cellIndex);
+                    return;
+                }
+                
+                // 如果点击的是当前已选中的格子，则取消选中
+                if (this.currentSampleBoxId === boxId && this.currentSampleCellIndex === cellIndex) {
+                    this.deselectCell();
+                    return;
+                }
+                
+                this.currentSampleBoxId = boxId;
+                this.currentSampleCellIndex = cellIndex;
+                this.currentSelectedCellIndex = cellIndex;
+                
+                const box = this.boxes.find(b => b.id === boxId);
+                const cell = box.cells[cellIndex];
+                
+                // 清除之前选中的格子样式
+                document.querySelectorAll('.grid-cell-large.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                // 添加当前选中格子的样式
+                const currentCell = document.querySelector(`[data-box-id="${boxId}"][data-cell-index="${cellIndex}"]`);
+                if (currentCell) {
+                    currentCell.classList.add('selected');
+                }
+                
+                // 更新当前格子信息
+                document.getElementById('currentCellNumber').textContent = `格子 ${cellIndex + 1}`;
+                
+                // 移除选中提示
+                
+                // 更新样品表单
+                if (cell) {
+                    document.getElementById('sampleName').value = cell.name || '';
+                    document.getElementById('sampleType').value = cell.type || '';
+                    document.getElementById('sampleDate').value = cell.date || new Date().toISOString().split('T')[0];
+                    document.getElementById('sampleDescription').value = cell.description || '';
+                } else {
+                    // 清空表单
+                    document.getElementById('sampleName').value = '';
+                    // 根据冻存盒位置设置默认样品类型
+                    const defaultType = this.getDefaultSampleTypeByLocation(box.location);
+                    document.getElementById('sampleType').value = defaultType;
+                    document.getElementById('sampleDate').value = new Date().toISOString().split('T')[0];
+                    document.getElementById('sampleDescription').value = '';
+                }
+                
+                // 显示样品信息容器，隐藏未选中提示
+                document.getElementById('noCellSelected').style.display = 'none';
+                document.getElementById('sampleInfoContainer').style.display = 'block';
+                
+                // 更新按钮状态
+                this.updateSampleButtonsState();
+            }
+            
+            // 根据冻存盒位置获取默认样品类型
+            getDefaultSampleTypeByLocation(location) {
+                const defaultTypes = {
+                    '液氮': '细胞',
+                    '-80': '细菌',
+                    '-20': '质粒',
+                    '4度': '蛋白',
+                    '其他': '其他'
+                };
+                return defaultTypes[location] || '其他';
+            }
+            
+            // 取消选中格子
+            deselectCell() {
+                // 清除选中样式
+                document.querySelectorAll('.grid-cell-large.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                // 移除取消选中提示
+                
+                // 清空当前选中状态
+                this.currentSampleBoxId = null;
+                this.currentSampleCellIndex = null;
+                this.currentSelectedCellIndex = null;
+                
+                // 清空当前格子信息
+                document.getElementById('currentCellNumber').textContent = '未选中格子';
+                
+                // 清空表单
+                document.getElementById('sampleName').value = '';
+                document.getElementById('sampleType').value = '';
+                document.getElementById('sampleDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('sampleDescription').value = '';
+                
+                // 隐藏样品信息容器，显示未选中提示
+                document.getElementById('noCellSelected').style.display = 'flex';
+                document.getElementById('sampleInfoContainer').style.display = 'none';
+                
+                // 更新按钮状态
+                this.updateSampleButtonsState();
+            }
+            
+            // 复制样品信息
+            copySample() {
+                if (!this.currentSampleBoxId || this.currentSampleCellIndex === null) {
+                    this.showToast('请先选择一个格子进行复制', 'warning');
+                    return;
+                }
+                
+                const box = this.boxes.find(b => b.id === this.currentSampleBoxId);
+                if (!box) {
+                    this.showToast('找不到对应的冻存盒', 'error');
+                    return;
+                }
+                
+                const cell = box.cells[this.currentSampleCellIndex];
+                if (!cell) {
+                    this.showToast('当前格子没有样品信息', 'warning');
+                    return;
+                }
+                
+                // 复制样品信息（深拷贝）
+                this.copiedSample = {
+                    name: cell.name || '',
+                    type: cell.type || '',
+                    date: cell.date || new Date().toISOString().split('T')[0],
+                    description: cell.description || '',
+                    updatedAt: new Date().toISOString()
+                };
+                
+                // 进入复制模式
+                this.isCopyMode = true;
+                
+                // 更新复制按钮状态
+                this.updateCopyButtonState();
+                
+                this.showToast(`已复制样品 "${cell.name || '未命名'}" 的信息，请点击其他格子进行粘贴`, 'success');
+            }
+            
+            // 更新复制按钮状态
+            updateCopyButtonState() {
+                const copyBtn = document.getElementById('copySampleBtn');
+                const visualizationPanel = document.querySelector('.visualization-panel');
+                
+                if (this.isCopyMode) {
+                    copyBtn.textContent = '退出复制模式';
+                    copyBtn.style.backgroundColor = '#e74c3c';
+                    if (visualizationPanel) {
+                        visualizationPanel.classList.add('copy-mode');
+                    }
+                } else {
+                    copyBtn.textContent = '复制样品';
+                    copyBtn.style.backgroundColor = '#3498db';
+                    if (visualizationPanel) {
+                        visualizationPanel.classList.remove('copy-mode');
+                    }
+                }
+            }
+            
+            // 粘贴样品信息到指定格子
+            pasteToCell(boxId, cellIndex) {
+                if (!this.copiedSample) {
+                    this.showToast('没有可粘贴的样品信息', 'warning');
+                    return;
+                }
+                
+                const box = this.boxes.find(b => b.id === boxId);
+                if (!box) {
+                    this.showToast('找不到对应的冻存盒', 'error');
+                    return;
+                }
+                
+                const targetCell = box.cells[cellIndex];
+                
+                // 如果目标格子不为空，询问用户是否覆盖
+                if (targetCell) {
+                    const confirmMessage = `目标格子已有样品 "${targetCell.name || '未命名'}"，是否覆盖？`;
+                    if (!confirm(confirmMessage)) {
+                        this.showToast('粘贴操作已取消', 'info');
+                        return;
+                    }
+                }
+                
+                // 粘贴样品信息
+                box.cells[cellIndex] = { ...this.copiedSample };
+                box.updatedAt = new Date().toISOString();
+                
+                // 更新当前选中状态
+                this.currentSampleBoxId = boxId;
+                this.currentSampleCellIndex = cellIndex;
+                this.currentSelectedCellIndex = cellIndex;
+                
+                // 更新表单显示
+                document.getElementById('sampleName').value = this.copiedSample.name;
+                document.getElementById('sampleType').value = this.copiedSample.type;
+                document.getElementById('sampleDate').value = this.copiedSample.date;
+                document.getElementById('sampleDescription').value = this.copiedSample.description;
+                
+                // 更新当前格子信息
+                document.getElementById('currentCellNumber').textContent = `格子 ${cellIndex + 1}`;
+                
+                // 更新选中样式
+                document.querySelectorAll('.grid-cell-large.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                const currentCell = document.querySelector(`[data-box-id="${boxId}"][data-cell-index="${cellIndex}"]`);
+                if (currentCell) {
+                    currentCell.classList.add('selected');
+                }
+                
+                this.saveBoxes();
+                this.renderSelectedBox();
+                
+                this.showToast('样品信息已粘贴到目标格子，可以继续粘贴到其他格子', 'success');
+            }
+            
+            // 获取筛选后的冻存盒列表
+            getFilteredBoxes() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const locationFilter = document.getElementById('locationSelect').value;
+                
+                return this.boxes.filter(box => {
+                    const matchesSearch = box.name.toLowerCase().includes(searchTerm) || 
+                                        box.description.toLowerCase().includes(searchTerm);
+                    const matchesLocation = !locationFilter || box.location === locationFilter;
+                    return matchesSearch && matchesLocation;
+                });
+            }
+            
+            // 搜索样品
+            searchSamples(searchTerm) {
+                this.sampleSearchTerm = searchTerm.trim().toLowerCase();
+                this.searchResults = [];
+                
+                if (!this.sampleSearchTerm) {
+                    // 清除搜索高亮
+                    this.clearSearchHighlights();
+                    return;
+                }
+                
+                // 搜索所有冻存盒中的样品
+                this.boxes.forEach(box => {
+                    box.cells.forEach((cell, cellIndex) => {
+                        if (cell && cell.name && cell.name.toLowerCase().includes(this.sampleSearchTerm)) {
+                            this.searchResults.push({
+                                boxId: box.id,
+                                cellIndex: cellIndex,
+                                boxName: box.name,
+                                sampleName: cell.name
+                            });
+                        }
+                    });
+                });
+                
+                // 显示搜索结果
+                this.highlightSearchResults();
+                
+                if (this.searchResults.length > 0) {
+                    this.showToast(`找到 ${this.searchResults.length} 个匹配的样品`, 'success');
+                } else {
+                    this.showToast('未找到匹配的样品', 'warning');
+                }
+            }
+            
+            // 高亮显示搜索结果
+            highlightSearchResults() {
+                // 清除之前的高亮
+                this.clearSearchHighlights();
+                
+                // 如果有搜索结果，自动切换到第一个结果所在的冻存盒
+                if (this.searchResults.length > 0) {
+                    const firstResult = this.searchResults[0];
+                    if (this.currentSelectedBoxId !== firstResult.boxId) {
+                        this.selectBox(firstResult.boxId);
+                    }
+                }
+                
+                // 添加新的高亮
+                this.searchResults.forEach(result => {
+                    const cell = document.querySelector(`[data-box-id="${result.boxId}"][data-cell-index="${result.cellIndex}"]`);
+                    if (cell) {
+                        cell.classList.add('highlighted');
+                    }
+                });
+            }
+            
+            // 清除搜索高亮
+            clearSearchHighlights() {
+                document.querySelectorAll('.grid-cell-large.highlighted').forEach(cell => {
+                    cell.classList.remove('highlighted');
+                });
+            }
+            
+            // 创建冻存盒列表项
+            createBoxListItem(box) {
+                const occupiedCells = box.cells.filter(cell => cell !== null).length;
+                const totalCells = box.cells.length;
+                
+                return `
+                    <div class="box-list-item" data-list-box-id="${box.id}">
+                        <div class="box-list-item-info">
+                            <div class="box-list-item-name">${box.name}</div>
+                            <div class="box-list-item-spec">${box.spec} | 已使用: ${occupiedCells}/${totalCells}</div>
+                            <div class="box-list-item-location location-${box.location}">${box.location}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 创建冻存盒卡片
+            createBoxCard(box) {
+                const occupiedCells = box.cells.filter(cell => cell !== null).length;
+                const totalCells = box.cells.length;
+                
+                return `
+                    <div class="box-card" data-box-id="${box.id}">
+                        <div class="box-actions">
+                            <button class="edit-btn" data-box-id="${box.id}">编辑</button>
+                            <button class="delete-btn" data-box-id="${box.id}">删除</button>
+                        </div>
+                        <div class="box-header">
+                            <div>
+                                <div class="box-title">${box.name}</div>
+                                <div>已使用: ${occupiedCells}/${totalCells}</div>
+                                <div class="box-location location-${box.location}">位置: ${box.location}</div>
+                            </div>
+                            <div class="box-spec">${box.spec}</div>
+                        </div>
+                        <div class="grid-container">
+                            <div class="grid spec-${box.spec}">
+                                ${box.cells.map((cell, index) => this.createGridCell(cell, index, box.id)).join('')}
+                            </div>
+                        </div>
+                        ${box.description ? `<div class="sample-info"><strong>描述:</strong> ${box.description}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            // 创建大型网格单元格（用于选中冻存盒展示）
+            createGridCellLarge(cell, index, boxId) {
+                const baseClass = 'grid-cell-large';
+                const cellClass = cell ? `${baseClass} occupied` : baseClass;
+                const sampleTypeClass = cell && cell.type ? `sample-type-${cell.type.replace('/', '-')}` : '';
+                const cellNumber = index + 1;
+                const deleteKey = `${boxId}-${index}`;
+                const isMarkedForDelete = this.deleteMarkedCells.includes(deleteKey);
+                const deleteClass = isMarkedForDelete ? 'to-delete' : '';
+                
+                if (cell) {
+                    // 有样品的格子：显示样品名称，鼠标悬停显示详细信息
+                    const tooltipContent = `
+                        <strong>样品名称:</strong> ${cell.name || '无'}<br>
+                        <strong>样品编号:</strong> ${cell.id || '无'}<br>
+                        <strong>样品类型:</strong> ${cell.type || '无'}<br>
+                        <strong>存储日期:</strong> ${cell.date || '无'}<br>
+                        <strong>备注:</strong> ${cell.description || '无'}
+                    `;
+                    
+                    // 无论长度多少，一律显示完整样品名称
+                    const displayText = cell.name || cellNumber;
+                    
+                    return `
+                        <div class="${cellClass} ${sampleTypeClass} ${deleteClass}" data-cell-index="${index}" data-box-id="${boxId}" title="${cell.name || '空'}">
+                            ${displayText}
+                            <div class="grid-cell-tooltip">${tooltipContent}</div>
+                        </div>
+                    `;
+                } else {
+                    // 空格子：显示编号
+                    return `<div class="${cellClass} ${deleteClass}" data-cell-index="${index}" data-box-id="${boxId}">${cellNumber}</div>`;
+                }
+            }
+            
+            // 截断文本
+            truncateText(text, maxLength) {
+                if (text.length <= maxLength) {
+                    return text;
+                }
+                return text.substring(0, maxLength) + '...';
+            }
+            
+            // 添加冻存盒事件监听器
+            addBoxEventListeners(box) {
+                // 单元格点击事件
+                const cells = document.querySelectorAll(`[data-box-id="${box.id}"] [data-cell-index]`);
+                cells.forEach(cell => {
+                    cell.addEventListener('click', () => {
+                        const cellIndex = parseInt(cell.dataset.cellIndex);
+                        this.showSampleModal(box.id, cellIndex);
+                    });
+                });
+                
+                // 编辑按钮事件
+                const editBtn = document.querySelector(`[data-box-id="${box.id}"] .edit-btn`);
+                if (editBtn) {
+                    editBtn.addEventListener('click', () => {
+                        this.showBoxModal(box);
+                    });
+                }
+                
+                // 删除按钮事件
+                const deleteBtn = document.querySelector(`[data-box-id="${box.id}"] .delete-btn`);
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', () => {
+                        this.deleteBox(box.id);
+                    });
+                }
+            }
+            
+            // 导出为CSV
+            exportToCSV() {
+                // 创建CSV内容
+                let csvContent = "";
+                
+                // 添加BOM头解决中文乱码问题
+                const BOM = "\uFEFF";
+                csvContent += BOM;
+                
+                // CSV表头
+                csvContent += "冻存盒ID,冻存盒名称,规格,位置,单元格编号,样品名称,样品类型,存储日期,备注,更新时间\n";
+                
+                // CSV内容 - 导出所有冻存盒的所有单元格，包括空单元格
+                this.boxes.forEach(box => {
+                    box.cells.forEach((cell, index) => {
+                        const row = [
+                            box.id,
+                            `"${box.name}"`,
+                            box.spec,
+                            box.location,
+                            index + 1,
+                            cell ? `"${cell.name || ''}"` : '',
+                            cell ? `"${cell.type || ''}"` : '',
+                            cell ? (cell.date || '') : '',
+                            cell ? `"${cell.description || ''}"` : '',
+                            cell ? (cell.updatedAt || '') : ''
+                        ];
+                        csvContent += row.join(',') + "\n";
+                    });
+                });
+                
+                // 创建Blob对象
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+                
+                // 创建下载链接
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", `冻存盒数据_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.display = "none";
+                
+                document.body.appendChild(link);
+                link.click();
+                
+                // 清理
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }, 100);
+            }
+            
+            // 从CSV导入
+            importFromCSV() {
+                // 创建文件输入元素
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.csv';
+                fileInput.style.display = 'none';
+                
+                fileInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const csvContent = e.target.result;
+                            const importedBoxes = this.parseCSV(csvContent);
+                            
+                            if (importedBoxes.length > 0) {
+                                if (confirm(`即将导入 ${importedBoxes.length} 个冻存盒的数据，这会覆盖当前所有数据。确定要继续吗？`)) {
+                                    this.boxes = importedBoxes;
+                                    this.saveBoxes();
+                                    this.renderBoxList();
+                                    this.renderSelectedBox();
+                                    alert('数据导入成功！');
+                                }
+                            } else {
+                                alert('未找到有效的冻存盒数据');
+                            }
+                        } catch (error) {
+                            alert('CSV文件解析失败：' + error.message);
+                        }
+                    };
+                    
+                    reader.readAsText(file, 'UTF-8');
+                });
+                
+                document.body.appendChild(fileInput);
+                fileInput.click();
+                document.body.removeChild(fileInput);
+            }
+            
+            // 解析CSV内容
+            parseCSV(csvContent) {
+                // 移除BOM头（如果有）
+                let content = csvContent;
+                if (csvContent.charCodeAt(0) === 0xFEFF) {
+                    content = csvContent.slice(1);
+                }
+                
+                const lines = content.split('\n').filter(line => line.trim());
+                if (lines.length < 2) return [];
+                
+                // 跳过表头
+                const dataLines = lines.slice(1);
+                const boxesMap = new Map();
+                
+                dataLines.forEach(line => {
+                    try {
+                        const cells = this.parseCSVLine(line);
+                        if (cells.length >= 10) {  // 现在只有10个字段
+                            const boxId = cells[0];
+                            const boxName = cells[1].replace(/"/g, '');
+                            const spec = cells[2];
+                            const location = cells[3];
+                            const cellIndex = parseInt(cells[4]) - 1;
+                            const sampleName = cells[5].replace(/"/g, '');
+                            const sampleType = cells[6].replace(/"/g, '');
+                            const sampleDate = cells[7];
+                            const sampleDescription = cells[8].replace(/"/g, '');
+                            
+                            if (!boxesMap.has(boxId)) {
+                                const [rows, cols] = spec.split('x').map(Number);
+                                // 验证规格是否有效
+                                if (isNaN(rows) || isNaN(cols) || rows <= 0 || cols <= 0) {
+                                    console.warn(`无效的规格: ${spec}, 跳过此冻存盒`);
+                                    return;
+                                }
+                                boxesMap.set(boxId, {
+                                    id: boxId,
+                                    name: boxName,
+                                    spec: spec,
+                                    location: location,
+                                    rows: rows,
+                                    cols: cols,
+                                    cells: Array(rows * cols).fill(null),
+                                    description: '',
+                                    createdAt: new Date().toISOString(),
+                                    updatedAt: new Date().toISOString()
+                                });
+                            }
+                            
+                            const box = boxesMap.get(boxId);
+                            if (box && cellIndex >= 0 && cellIndex < box.cells.length) {
+                                // 只有当有样品信息时才设置，否则保持为null
+                                if (sampleName || sampleType || sampleDate || sampleDescription) {
+                                    box.cells[cellIndex] = {
+                                        name: sampleName,
+                                        type: sampleType,
+                                        date: sampleDate,
+                                        description: sampleDescription,
+                                        updatedAt: cells[9] || new Date().toISOString()
+                                    };
+                                } else {
+                                    box.cells[cellIndex] = null;
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.warn(`解析CSV行失败: ${line}, 错误: ${error.message}`);
+                    }
+                });
+                
+                return Array.from(boxesMap.values());
+            }
+            
+            // 解析CSV行（处理引号和逗号）
+            parseCSVLine(line) {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current);
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                
+                result.push(current);
+                return result;
+            }
+            
+            // 显示Toast提示
+            showToast(message, type = 'info') {
+                const toastContainer = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                
+                toastContainer.appendChild(toast);
+                
+                // 显示动画
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 10);
+                
+                // 3秒后自动消失
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        if (toastContainer.contains(toast)) {
+                            toastContainer.removeChild(toast);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 检查是否是首次访问
+            checkFirstVisit() {
+                const hasVisited = localStorage.getItem('cryoBoxManager_hasVisited');
+                if (!hasVisited) {
+                    // 首次访问，显示欢迎对话框
+                    setTimeout(() => {
+                        this.showWelcomeModal();
+                    }, 500);
+                }
+            }
+            
+            // 显示欢迎对话框
+            showWelcomeModal() {
+                const modal = document.getElementById('welcomeModal');
+                modal.style.display = 'block';
+                
+                // 添加事件监听器
+                document.getElementById('welcomeClose').addEventListener('click', () => {
+                    this.closeWelcomeModal();
+                });
+                
+                document.getElementById('welcomeConfirmBtn').addEventListener('click', () => {
+                    this.closeWelcomeModal();
+                });
+                
+                // 点击模态框外部关闭
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        this.closeWelcomeModal();
+                    }
+                });
+            }
+            
+            // 关闭欢迎对话框
+            closeWelcomeModal() {
+                const modal = document.getElementById('welcomeModal');
+                modal.style.display = 'none';
+                
+                // 标记为已访问
+                localStorage.setItem('cryoBoxManager_hasVisited', 'true');
+            }
+        }
+        
+        // 初始化应用
+        const manager = new CryoBoxManager();
+        
+        // 设置日期输入框默认值为今天
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('sampleDate');
+            if (dateInput) {
+                dateInput.value = today;
+            }
+        });
+    </script>
+</body>
+</html>
