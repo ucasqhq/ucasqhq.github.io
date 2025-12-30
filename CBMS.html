@@ -139,6 +139,45 @@
             box-shadow: 0 2px 10px rgba(52, 152, 219, 0.5);
         }
         
+        /* 移动模式样式 */
+        .visualization-panel.move-mode {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.2));
+            border: 2px solid #2ecc71;
+            animation: moveModeGlow 2s infinite;
+            position: relative;
+        }
+        
+        .visualization-panel.move-mode::before {
+            content: "🔄 移动模式 - 点击目标格子完成移动或互换";
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2ecc71;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(46, 204, 113, 0.5);
+        }
+        
+        @keyframes moveModeGlow {
+            0% { 
+                border-color: #2ecc71;
+                box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+            }
+            50% { 
+                border-color: #27ae60;
+                box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+            }
+            100% { 
+                border-color: #2ecc71;
+                box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+            }
+        }
+        
         @keyframes copyModeGlow {
             0% { 
                 border-color: #3498db;
@@ -666,8 +705,19 @@
         
         .sample-actions {
             display: flex;
+            flex-direction: column;
             gap: 10px;
             margin-top: 20px;
+        }
+        
+        .sample-actions-row {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+        }
+        
+        .sample-actions-row-secondary {
+            justify-content: flex-start;
         }
         
         .sample-actions button {
@@ -678,6 +728,11 @@
             font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
+            min-width: 0;
+        }
+        
+        .sample-actions-row-secondary button {
+            flex: 1;
         }
         
         /* 未选中格子提示样式 */
@@ -777,6 +832,41 @@
         
         .copy-btn:disabled:hover {
             background-color: #bdc3c7;
+        }
+        
+        .move-btn {
+            background-color: #16a085;
+            color: white;
+        }
+        
+        .move-btn:hover {
+            background-color: #138d75;
+        }
+        
+        .move-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .move-btn:disabled:hover {
+            background-color: #bdc3c7;
+        }
+        
+        .move-btn.active {
+            background-color: #27ae60;
+            animation: pulse-green 1.5s infinite;
+        }
+        
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(46, 204, 113, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+            }
         }
         
         .batch-delete-btn {
@@ -1114,10 +1204,20 @@
             /* 调整样品管理面板的布局 */
             .sample-actions {
                 flex-direction: column;
+                gap: 8px;
+            }
+            
+            .sample-actions-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .sample-actions-row-secondary {
+                justify-content: flex-start;
             }
             
             .sample-actions button {
-                margin-bottom: 8px;
+                margin-bottom: 0;
             }
             
             /* 调整冻存盒网格容器 */
@@ -1179,7 +1279,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>冻存盒管理系统v1.3</h1>
+        <h1>冻存盒管理系统v1.4</h1>
         <button id="helpBtn" class="help-button">使用指南</button>
         <div class="main-layout">
             <!-- 左侧冻存盒列表和操作按钮 -->
@@ -1266,7 +1366,7 @@
                             <div id="sampleInfoContainer" class="sample-info-container" style="display: none;">
                                 <div class="form-group">
                                     <label for="sampleName">样品名称 *</label>
-                                    <input type="text" id="sampleName" placeholder="输入样品名称" required>
+                                    <input type="text" id="sampleName" placeholder="输入样品名称" required autocomplete="off">
                                 </div>
                                 <div class="form-group">
                                     <label for="sampleType">样品类型 *</label>
@@ -1294,10 +1394,15 @@
                             </div>
                             
                             <div class="sample-actions">
-                                <button id="saveSampleBtn" class="save-btn">保存样品</button>
-                                <button id="copySampleBtn" class="copy-btn">复制样品</button>
-                                <button id="clearSampleBtn" class="clear-btn">删除样品</button>
-                                <button id="batchDeleteBtn" class="batch-delete-btn">批量删除</button>
+                                <div class="sample-actions-row">
+                                    <button id="saveSampleBtn" class="save-btn">保存样品</button>
+                                    <button id="copySampleBtn" class="copy-btn">复制样品</button>
+                                    <button id="moveSampleBtn" class="move-btn">移动样品</button>
+                                </div>
+                                <div class="sample-actions-row sample-actions-row-secondary">
+                                    <button id="clearSampleBtn" class="clear-btn">删除样品</button>
+                                    <button id="batchDeleteBtn" class="batch-delete-btn">批量删除</button>
+                                </div>
                             </div>
                             <div class="sample-type-legend">
                                 <h4>样品类型颜色图例</h4>
@@ -1361,6 +1466,7 @@
                     <ul>
                         <li><strong>创建冻存盒</strong>：点击左侧"新建冻存盒"按钮，填写信息后保存</li>
                         <li><strong>管理样品</strong>：选中冻存盒后，点击格子可以添加/编辑样品信息</li>
+                        <li><strong>移动样品</strong>：选中样品后点击"移动样品"，然后点击目标格子完成移动或互换</li>
                         <li><strong>复制样品</strong>：选中样品后点击"复制样品"，然后可以粘贴到其他格子</li>
                         <li><strong>批量删除</strong>：点击"批量删除"按钮，标记要删除的样品后确认</li>
                         <li><strong>搜索筛选</strong>：可全局搜索样品位置，以格子高亮显示</li>
@@ -1444,6 +1550,9 @@
                 this.sampleSearchTerm = ''; // 样品搜索关键词
                 this.searchResults = []; // 搜索结果
                 this.isFormModified = false; // 表单是否被修改过
+                this.isMoveMode = false; // 移动模式状态
+                this.moveSourceBoxId = null; // 移动源格子所在的冻存盒ID
+                this.moveSourceCellIndex = null; // 移动源格子索引
                 this.initEventListeners();
                 this.renderBoxList();
                 this.checkFirstVisit();
@@ -1564,6 +1673,16 @@
                         this.exitCopyMode();
                     } else {
                         this.copySample();
+                    }
+                });
+                
+                // 移动样品按钮
+                document.getElementById('moveSampleBtn').addEventListener('click', () => {
+                    if (this.isMoveMode) {
+                        // 退出移动模式
+                        this.exitMoveMode();
+                    } else {
+                        this.enterMoveMode();
                     }
                 });
                 
@@ -1831,6 +1950,7 @@
             updateSampleButtonsState() {
                 const saveBtn = document.getElementById('saveSampleBtn');
                 const copyBtn = document.getElementById('copySampleBtn');
+                const moveBtn = document.getElementById('moveSampleBtn');
                 const clearBtn = document.getElementById('clearSampleBtn');
                 
                 // 检查是否有选中的格子
@@ -1846,6 +1966,13 @@
                 } else {
                     copyBtn.disabled = !hasSelectedCell;
                 }
+                
+                // 移动按钮特殊处理：在移动模式下始终可用，允许用户退出移动模式
+                if (this.isMoveMode) {
+                    moveBtn.disabled = false;
+                } else {
+                    moveBtn.disabled = !hasSelectedCell;
+                }
             }
             
             // 更新可视化面板样式
@@ -1854,8 +1981,20 @@
                 if (panel) {
                     if (this.isBatchDeleteMode) {
                         panel.classList.add('batch-delete-mode');
+                        panel.classList.remove('copy-mode');
+                        panel.classList.remove('move-mode');
+                    } else if (this.isCopyMode) {
+                        panel.classList.add('copy-mode');
+                        panel.classList.remove('batch-delete-mode');
+                        panel.classList.remove('move-mode');
+                    } else if (this.isMoveMode) {
+                        panel.classList.add('move-mode');
+                        panel.classList.remove('copy-mode');
+                        panel.classList.remove('batch-delete-mode');
                     } else {
                         panel.classList.remove('batch-delete-mode');
+                        panel.classList.remove('copy-mode');
+                        panel.classList.remove('move-mode');
                     }
                 }
             }
@@ -2036,6 +2175,12 @@
                 // 如果在复制模式下，执行粘贴操作
                 if (this.isCopyMode && this.copiedSample) {
                     this.pasteToCell(boxId, cellIndex);
+                    return;
+                }
+                
+                // 如果在移动模式下，执行移动或互换操作
+                if (this.isMoveMode) {
+                    this.executeMoveOrSwap(boxId, cellIndex);
                     return;
                 }
                 
@@ -2248,6 +2393,160 @@
                 this.updateVisualizationPanel();
                 
                 this.showToast('已退出复制模式', 'info');
+            }
+            
+            // 进入移动模式
+            enterMoveMode() {
+                // 验证是否已选择样品
+                if (!this.currentSampleBoxId || this.currentSampleCellIndex === null) {
+                    this.showToast('请先选择一个样品进行移动', 'warning');
+                    return;
+                }
+                
+                const box = this.boxes.find(b => b.id === this.currentSampleBoxId);
+                if (!box) {
+                    this.showToast('找不到对应的冻存盒', 'error');
+                    return;
+                }
+                
+                const cell = box.cells[this.currentSampleCellIndex];
+                if (!cell) {
+                    this.showToast('当前格子没有样品信息', 'warning');
+                    return;
+                }
+                
+                // 保存移动源信息
+                this.moveSourceBoxId = this.currentSampleBoxId;
+                this.moveSourceCellIndex = this.currentSampleCellIndex;
+                
+                // 进入移动模式
+                this.isMoveMode = true;
+                
+                // 更新移动按钮状态
+                this.updateMoveButtonState();
+                
+                // 更新可视化面板样式
+                this.updateVisualizationPanel();
+                
+                this.showToast(`已选中样品 "${cell.name || '未命名'}"，请点击目标格子完成移动或互换`, 'success');
+            }
+            
+            // 退出移动模式
+            exitMoveMode(showToast = true) {
+                // 重置移动模式状态
+                this.isMoveMode = false;
+                
+                // 清空移动源信息
+                this.moveSourceBoxId = null;
+                this.moveSourceCellIndex = null;
+                
+                // 更新移动按钮状态
+                this.updateMoveButtonState();
+                
+                // 更新样品操作按钮状态
+                this.updateSampleButtonsState();
+                
+                // 更新可视化面板样式
+                this.updateVisualizationPanel();
+                
+                if (showToast) {
+                    this.showToast('已退出移动模式', 'info');
+                }
+            }
+            
+            // 更新移动按钮状态
+            updateMoveButtonState() {
+                const moveBtn = document.getElementById('moveSampleBtn');
+                
+                if (this.isMoveMode) {
+                    moveBtn.classList.add('active');
+                    moveBtn.textContent = '退出移动模式';
+                } else {
+                    moveBtn.classList.remove('active');
+                    moveBtn.textContent = '移动样品';
+                }
+            }
+            
+            // 执行移动或互换操作
+            executeMoveOrSwap(targetBoxId, targetCellIndex) {
+                // 边界条件检查
+                if (!this.moveSourceBoxId || this.moveSourceCellIndex === null) {
+                    this.showToast('移动源信息丢失，请重新选择', 'error');
+                    this.exitMoveMode();
+                    return;
+                }
+                
+                // 检查是否移动到同一个格子
+                if (this.moveSourceBoxId === targetBoxId && this.moveSourceCellIndex === targetCellIndex) {
+                    this.showToast('不能移动到同一个格子', 'warning');
+                    this.exitMoveMode();
+                    return;
+                }
+                
+                const sourceBox = this.boxes.find(b => b.id === this.moveSourceBoxId);
+                const targetBox = this.boxes.find(b => b.id === targetBoxId);
+                
+                if (!sourceBox || !targetBox) {
+                    this.showToast('找不到对应的冻存盒', 'error');
+                    this.exitMoveMode();
+                    return;
+                }
+                
+                // 验证目标格子索引是否有效
+                if (targetCellIndex < 0 || targetCellIndex >= targetBox.cells.length) {
+                    this.showToast('目标格子索引无效', 'error');
+                    this.exitMoveMode();
+                    return;
+                }
+                
+                const sourceCell = sourceBox.cells[this.moveSourceCellIndex];
+                const targetCell = targetBox.cells[targetCellIndex];
+                
+                if (!sourceCell) {
+                    this.showToast('源格子没有样品信息', 'error');
+                    this.exitMoveMode();
+                    return;
+                }
+                
+                // 执行移动或互换
+                if (targetCell) {
+                    // 目标格子已有样品，执行互换
+                    const temp = sourceCell;
+                    sourceBox.cells[this.moveSourceCellIndex] = targetCell;
+                    targetBox.cells[targetCellIndex] = temp;
+                    
+                    // 更新时间戳
+                    sourceBox.updatedAt = new Date().toISOString();
+                    targetBox.updatedAt = new Date().toISOString();
+                    
+                    this.showToast(`已互换样品 "${sourceCell.name}" 和 "${targetCell.name}"`, 'success');
+                } else {
+                    // 目标格子为空，执行移动
+                    targetBox.cells[targetCellIndex] = sourceCell;
+                    sourceBox.cells[this.moveSourceCellIndex] = null;
+                    
+                    // 更新时间戳
+                    sourceBox.updatedAt = new Date().toISOString();
+                    targetBox.updatedAt = new Date().toISOString();
+                    
+                    this.showToast(`已将样品 "${sourceCell.name}" 移动到目标格子`, 'success');
+                }
+                
+                // 保存数据
+                this.saveBoxes();
+                
+                // 保存目标格子信息，用于后续选中
+                const finalBoxId = targetBoxId;
+                const finalCellIndex = targetCellIndex;
+                
+                // 重新渲染
+                this.renderSelectedBox();
+                
+                // 退出移动模式（不显示提示，因为已经显示了移动成功提示）
+                this.exitMoveMode(false);
+                
+                // 自动选中移动后的目标格子
+                this.selectCell(finalBoxId, finalCellIndex);
             }
             
             // 粘贴样品信息到指定格子
@@ -2601,26 +2900,61 @@
                     content = csvContent.slice(1);
                 }
                 
+                // 处理不同换行符（Windows: \r\n, Unix: \n, Mac: \r）
+                content = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                
                 const lines = content.split('\n').filter(line => line.trim());
                 if (lines.length < 2) return [];
                 
-                // 跳过表头
+                // 解析表头，获取列索引（增强兼容性）
+                const headerLine = lines[0];
+                const headers = this.parseCSVLine(headerLine).map(h => h.replace(/"/g, '').trim());
+                
+                // 创建列名到索引的映射
+                const columnMap = {};
+                headers.forEach((header, index) => {
+                    columnMap[header] = index;
+                });
+                
+                // 检查必需字段
+                const requiredFields = ['冻存盒ID', '冻存盒名称', '规格', '位置', '单元格编号'];
+                const missingFields = requiredFields.filter(field => !columnMap.hasOwnProperty(field));
+                if (missingFields.length > 0) {
+                    throw new Error(`CSV文件缺少必需字段: ${missingFields.join(', ')}`);
+                }
+                
                 const dataLines = lines.slice(1);
                 const boxesMap = new Map();
+                let validLines = 0;
                 
                 dataLines.forEach(line => {
                     try {
                         const cells = this.parseCSVLine(line);
-                        if (cells.length >= 10) {  // 现在只有10个字段
-                            const boxId = cells[0];
-                            const boxName = cells[1].replace(/"/g, '');
-                            const spec = cells[2];
-                            const location = cells[3];
-                            const cellIndex = parseInt(cells[4]) - 1;
-                            const sampleName = cells[5].replace(/"/g, '');
-                            const sampleType = cells[6].replace(/"/g, '');
-                            const sampleDate = cells[7];
-                            const sampleDescription = cells[8].replace(/"/g, '');
+                        if (cells.length >= 5) {  // 至少需要前5个必需字段
+                            // 使用列映射获取数据，增强兼容性
+                            const boxId = cells[columnMap['冻存盒ID']] || '';
+                            const boxName = (cells[columnMap['冻存盒名称']] || '').replace(/"/g, '').trim();
+                            const spec = cells[columnMap['规格']] || '';
+                            const location = cells[columnMap['位置']] || '';
+                            const cellIndexStr = cells[columnMap['单元格编号']] || '';
+                            
+                            // 安全解析单元格编号
+                            const cellIndex = parseInt(cellIndexStr) - 1;
+                            if (isNaN(cellIndex) || cellIndex < 0) {
+                                console.warn(`无效的单元格编号: ${cellIndexStr}, 跳过此行`);
+                                return;
+                            }
+                            
+                            // 可选字段（安全处理）
+                            const sampleName = (cells[columnMap['样品名称']] || '').replace(/"/g, '').trim();
+                            const sampleType = (cells[columnMap['样品类型']] || '').replace(/"/g, '').trim();
+                            const sampleDate = cells[columnMap['存储日期']] || '';
+                            const sampleDescription = (cells[columnMap['备注']] || '').replace(/"/g, '').trim();
+                            
+                            if (!boxId || !boxName || !spec || !location) {
+                                console.warn(`缺少必需字段，跳过此行: ${line}`);
+                                return;
+                            }
                             
                             if (!boxesMap.has(boxId)) {
                                 const [rows, cols] = spec.split('x').map(Number);
@@ -2652,11 +2986,12 @@
                                         type: sampleType,
                                         date: sampleDate,
                                         description: sampleDescription,
-                                        updatedAt: cells[9] || new Date().toISOString()
+                                        updatedAt: cells[columnMap['更新时间']] || new Date().toISOString()
                                     };
                                 } else {
                                     box.cells[cellIndex] = null;
                                 }
+                                validLines++;
                             }
                         }
                     } catch (error) {
@@ -2664,6 +2999,7 @@
                     }
                 });
                 
+                console.log(`成功解析 ${validLines} 行数据，导入 ${boxesMap.size} 个冻存盒`);
                 return Array.from(boxesMap.values());
             }
             
