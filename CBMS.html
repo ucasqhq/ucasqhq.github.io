@@ -432,7 +432,7 @@
         }
         
         .selected-box-grid-container {
-            overflow: hidden;
+            overflow: auto; 
             flex: 1;
             display: flex;
             justify-content: center;
@@ -445,7 +445,8 @@
             margin: 0 auto;
             max-width: 100%;
             max-height: 100%;
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
         }
         
         .selected-box-grid.spec-9x9 {
@@ -1082,12 +1083,103 @@
             .box-grid {
                 grid-template-columns: 1fr;
             }
+            
+            /* 移动端适配：可视化面板和样品管理面板垂直堆叠 */
+            .content-area {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .visualization-panel {
+                flex: none;
+                width: 100%;
+                min-height: 400px;
+                order: 1;
+            }
+            
+            .sample-management-panel {
+                flex: none;
+                width: 100%;
+                min-width: auto;
+                order: 2;
+            }
+            
+            /* 调整格子大小以适应移动端 */
+            .grid-cell-large {
+                width: 50px;
+                height: 50px;
+                font-size: 10px;
+            }
+            
+            /* 调整样品管理面板的布局 */
+            .sample-actions {
+                flex-direction: column;
+            }
+            
+            .sample-actions button {
+                margin-bottom: 8px;
+            }
+            
+            /* 调整冻存盒网格容器 */
+            .selected-box-grid-container {
+                overflow-x: auto;
+            }
+            
+            /* 调整样品表单间距 */
+            .sample-form .form-group {
+                margin: 8px 0;
+            }
+        }
+        
+        /* 针对更小屏幕的适配（小于480px） */
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .visualization-panel {
+                min-height: 350px;
+            }
+            
+            .grid-cell-large {
+                width: 40px;
+                height: 40px;
+                font-size: 9px;
+            }
+            
+            .sample-management-panel {
+                padding: 15px;
+            }
+            
+            .sample-panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .current-cell-info {
+                align-self: stretch;
+                text-align: center;
+            }
+            
+            /* 调整按钮大小 */
+            .sample-actions button {
+                padding: 12px;
+                font-size: 13px;
+            }
+            
+            /* 调整表单元素大小 */
+            .sample-form .form-group input,
+            .sample-form .form-group textarea {
+                padding: 10px;
+                font-size: 16px; /* 防止iOS缩放 */
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>冻存盒管理系统</h1>
+        <h1>冻存盒管理系统v1.3</h1>
         <button id="helpBtn" class="help-button">使用指南</button>
         <div class="main-layout">
             <!-- 左侧冻存盒列表和操作按钮 -->
@@ -1272,6 +1364,7 @@
                         <li><strong>复制样品</strong>：选中样品后点击"复制样品"，然后可以粘贴到其他格子</li>
                         <li><strong>批量删除</strong>：点击"批量删除"按钮，标记要删除的样品后确认</li>
                         <li><strong>搜索筛选</strong>：可全局搜索样品位置，以格子高亮显示</li>
+                        <li><strong>离线运行</strong>：右键将网页另存为本地.html文件，即可离线运行</li>
                     </ul>
                 </div>
                 <div class="welcome-section">
@@ -1350,6 +1443,7 @@
                 this.deleteMarkedCells = []; // 标记要删除的格子
                 this.sampleSearchTerm = ''; // 样品搜索关键词
                 this.searchResults = []; // 搜索结果
+                this.isFormModified = false; // 表单是否被修改过
                 this.initEventListeners();
                 this.renderBoxList();
                 this.checkFirstVisit();
@@ -1446,13 +1540,28 @@
                     this.saveSample();
                 });
                 
+                // 样品表单修改事件监听器
+                document.getElementById('sampleName').addEventListener('input', () => {
+                    this.isFormModified = true;
+                });
+                
+                document.getElementById('sampleType').addEventListener('change', () => {
+                    this.isFormModified = true;
+                });
+                
+                document.getElementById('sampleDate').addEventListener('change', () => {
+                    this.isFormModified = true;
+                });
+                
+                document.getElementById('sampleDescription').addEventListener('input', () => {
+                    this.isFormModified = true;
+                });
+                
                 // 复制样品按钮
                 document.getElementById('copySampleBtn').addEventListener('click', () => {
                     if (this.isCopyMode) {
                         // 退出复制模式
-                        this.isCopyMode = false;
-                        this.updateCopyButtonState();
-                        this.showToast('已退出复制模式', 'info');
+                        this.exitCopyMode();
                     } else {
                         this.copySample();
                     }
@@ -1637,6 +1746,9 @@
                 this.saveBoxes();
                 this.renderSelectedBox();
                 
+                // 重置表单修改状态
+                this.isFormModified = false;
+                
                 this.showToast('样品信息已保存', 'success');
             }
             
@@ -1726,8 +1838,14 @@
                 
                 // 更新按钮禁用状态
                 saveBtn.disabled = !hasSelectedCell;
-                copyBtn.disabled = !hasSelectedCell;
                 clearBtn.disabled = !hasSelectedCell;
+                
+                // 复制按钮特殊处理：在复制模式下始终可用，允许用户退出复制模式
+                if (this.isCopyMode) {
+                    copyBtn.disabled = false;
+                } else {
+                    copyBtn.disabled = !hasSelectedCell;
+                }
             }
             
             // 更新可视化面板样式
@@ -1838,6 +1956,11 @@
                 }
                 
                 this.renderSelectedBox();
+                
+                // 如果在复制模式下，确保按钮状态正确更新
+                if (this.isCopyMode) {
+                    this.updateSampleButtonsState();
+                }
             }
             
             // 渲染选中的冻存盒
@@ -1922,6 +2045,24 @@
                     return;
                 }
                 
+                // 检查当前选中的格子是否有未保存的修改
+                if (this.currentSampleBoxId !== null && this.currentSampleCellIndex !== null && this.isFormModified) {
+                    // 弹出确认提示，询问用户是否保存
+                    const userChoice = confirm('样品信息已修改但未保存，是否保存当前修改？');
+                    
+                    if (userChoice) {
+                        // 用户选择保存，执行保存操作
+                        this.saveSample();
+                        // 保存后重置表单修改状态
+                        this.isFormModified = false;
+                    } else {
+                        // 用户选择不保存，重置表单修改状态
+                        this.isFormModified = false;
+                       
+                    }
+                    // 无论用户选择保存还是不保存，都继续执行切换操作
+                }
+                
                 this.currentSampleBoxId = boxId;
                 this.currentSampleCellIndex = cellIndex;
                 this.currentSelectedCellIndex = cellIndex;
@@ -1983,6 +2124,23 @@
             
             // 取消选中格子
             deselectCell() {
+                // 检查表单是否被修改过
+                if (this.isFormModified) {
+                    // 弹出确认提示，询问用户是否保存
+                    const userChoice = confirm('样品信息已修改但未保存，是否保存当前修改？');
+                    
+                    if (userChoice) {
+                        // 用户选择保存，执行保存操作
+                        this.saveSample();
+                        // 保存后重置表单修改状态
+                        this.isFormModified = false;
+                    } else {
+                        // 用户选择不保存，重置表单修改状态
+                        this.isFormModified = false;
+                    }
+                    // 无论用户选择保存还是不保存，都继续执行取消选中操作
+                }
+                
                 // 清除选中样式
                 document.querySelectorAll('.grid-cell-large.selected').forEach(el => {
                     el.classList.remove('selected');
@@ -2003,6 +2161,9 @@
                 document.getElementById('sampleType').value = '';
                 document.getElementById('sampleDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('sampleDescription').value = '';
+                
+                // 重置表单修改状态
+                this.isFormModified = false;
                 
                 // 隐藏样品信息容器，显示未选中提示
                 document.getElementById('noCellSelected').style.display = 'flex';
@@ -2067,6 +2228,26 @@
                         visualizationPanel.classList.remove('copy-mode');
                     }
                 }
+            }
+            
+            // 退出复制模式
+            exitCopyMode() {
+                // 重置复制模式状态
+                this.isCopyMode = false;
+                
+                // 清空复制的样品信息
+                this.copiedSample = null;
+                
+                // 更新复制按钮状态
+                this.updateCopyButtonState();
+                
+                // 更新样品操作按钮状态
+                this.updateSampleButtonsState();
+                
+                // 更新可视化面板样式
+                this.updateVisualizationPanel();
+                
+                this.showToast('已退出复制模式', 'info');
             }
             
             // 粘贴样品信息到指定格子
